@@ -3,10 +3,9 @@ import Router from 'vue-router'
 import DataCenter from './views/DataCenter.vue'
 
 Vue.use(Router);
-
 export default new Router({
   mode: 'history',
-  base: process.env.BASE_URL,
+  base: '/ebiH5',   // console.log(process.env.BASE_URL);
   routes: [
     {
       path: '/index',
