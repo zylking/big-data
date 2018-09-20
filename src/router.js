@@ -14,6 +14,12 @@ export default new Router({
       component: DataCenter
     },
     {
+      path: '/index.html',
+      name: 'index',
+      meta: {index: 0},   // meta对象的index用来定义当前路由的层级,由小到大,由低到高
+      component: DataCenter
+    },
+    {
       path: '/clerk',
       name: 'clerk',
       meta: {index: 1},
