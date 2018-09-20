@@ -56,32 +56,32 @@ Vue.prototype.showMessage = function (msg) {
 /**
  * vue-router全局导航，判断是否登录，数据中心放行，其他路由则不允许放行
  */
-router.beforeEach(function (to, from, next) {
-  switch (to.path) {
-    case '/index':
-    case '/index.html':
-      next();
-      break;
-    case '/wait':
-      _Vue.showMessage('敬请期待！');
-      break;
-    default:
-      let eId = sessionStorage.getItem('entityId');
-
-      // 如果未登录，则直接提示
-      if (!eId || eId === 'undefined') {
-        if (_Vue) {
-          _Vue.showMessage('请先登录！');
-        } else {
-          Mint.MessageBox({title: '提示', message: '请先登录！', confirmButtonText: '我知道了', closeOnClickModal: false});
-        }
-        return;
-      }
-
-      next();
-      break;
-  }
-
-});
+// router.beforeEach(function (to, from, next) {
+//   switch (to.path) {
+//     case '/index':
+//     case '/index.html':
+//       next();
+//       break;
+//     case '/wait':
+//       _Vue.showMessage('敬请期待！');
+//       break;
+//     default:
+//       let eId = sessionStorage.getItem('entityId');
+//
+//       // 如果未登录，则直接提示
+//       if (!eId || eId === 'undefined') {
+//         if (_Vue) {
+//           _Vue.showMessage('请先登录！');
+//         } else {
+//           Mint.MessageBox({title: '提示', message: '请先登录！', confirmButtonText: '我知道了', closeOnClickModal: false});
+//         }
+//         return;
+//       }
+//
+//       next();
+//       break;
+//   }
+//
+// });
 
 let _Vue = new Vue({router, render: h => h(Main)}).$mount('#index');
