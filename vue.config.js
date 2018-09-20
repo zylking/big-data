@@ -1,5 +1,6 @@
 module.exports = {
-  baseUrl: '/stewards',
+  baseUrl: '/ebiH5',
+  outputDir: 'ebiH5',
   devServer: {
     proxy: {
       '/api': {
