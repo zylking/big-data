@@ -2,11 +2,9 @@
   <div class="content data-center">
     <!-- 顶部轮播 -->
     <div class="data-roll">
-      <mt-header class="mt-opacity-header" title="数据中心">
-        <mt-button icon="more" slot="right"></mt-button>
-      </mt-header>
+      <Header :header="header" @updateShopId="updateShopId"/>
       <div class="data-roll-inner">
-        <Swiper/>
+        <Swiper :shopId="shopId"/>
       </div>
     </div>
 
@@ -21,8 +19,9 @@
           <p class="title-right">金额 / 日期</p>
         </div>
         <div class="charts-div-inner">
-          <ve-line :data="VeLineData" :height="chartsHeight" :legend-visible="false"
-                   :colors="lineColors" :set-option-opts="lineOpt"></ve-line>
+          <ve-line :loading="lLoading" :data="VeLineData" :width="chartsWidth" :height="chartsHeight"
+                   :legend-visible="false"
+                   :colors="lineColors" :set-option-opts="lineOpt" :data-empty="lEmpty"></ve-line>
         </div>
       </div>
       <!-- 会员增长趋势 -->
@@ -35,8 +34,9 @@
           <p class="title-right">人数 / 日期</p>
         </div>
         <div class="charts-div-inner">
-          <ve-histogram :data="VeHistogramData" :height="chartsHeight" :legend-visible="false"
-                        :colors="histColors"></ve-histogram>
+          <ve-histogram :loading="hLoading" :data="VeHistogramData" :width="chartsWidth" :height="chartsHeight"
+                        :legend-visible="false"
+                        :colors="histColors" :data-empty="hEmpty"></ve-histogram>
         </div>
       </div>
       <!-- 消费占比 -->
@@ -62,8 +62,9 @@
           </ul>
         </div>
         <div class="charts-div-inner">
-          <ve-ring :data="VeRingData" :height="chartsHeight" :legend-visible="false"
-                   :colors="ringColors"></ve-ring>
+          <ve-ring :loading="rLoading" :data="VeRingData" :width="chartsWidth" :height="chartsHeight"
+                   :legend-visible="false"
+                   :colors="ringColors" :data-empty="rEmpty"></ve-ring>
         </div>
       </div>
       <!-- 排行榜 -->
@@ -77,19 +78,19 @@
             </router-link>
           </li>
           <li>
-            <router-link to="/store" class="custom-link">
+            <router-link to="/wait" class="custom-link">
               <img src="../assets/images/icon_store@2x.png">
               <span>店铺业绩</span>
             </router-link>
           </li>
           <li>
-            <router-link to="/sell" class="custom-link">
+            <router-link to="/wait" class="custom-link">
               <img src="../assets/images/icon_hot@2x.png">
               <span>畅销货品</span>
             </router-link>
           </li>
           <li>
-            <router-link to="/badSell" class="custom-link">
+            <router-link to="/wait" class="custom-link">
               <img src="../assets/images/icon_unsalable@2x.png">
               <span>滞销货品</span>
             </router-link>
@@ -101,11 +102,12 @@
 </template>
 
 <script>
+  import Header from '@/components/Header.vue';
   import Swiper from '@/components/Swiper.vue'
 
   export default {
     name: "DataCenter",
-    components: {Swiper},
+    components: {Header, Swiper},
     data: function () {
       this.lineColors = ["#3399FF"];
       this.lineOpt = {
@@ -115,57 +117,101 @@
       this.histColors = ["#FFAA22"];
       this.ringColors = ["#FF6581", "#29CCB6", "#FFAA22"];
       this.chartsHeight = "320px";
+      this.chartsWidth = '100%';
       return {
+        header: {
+          back: false,
+          to: '/',
+          title: '数据中心'
+        },
+        lEmpty: false,
+        lLoading: false,
+        hEmpty: false,
+        hLoading: false,
+        rEmpty: false,
+        rLoading: false,
         index: 0,
         items: [],
 
-        VeLineData: {
-          columns: ['日期', '金额'],
-          rows: [
-            {'日期': '03.01', '金额': 900},
-            {'日期': '03.02', '金额': 1450},
-            {'日期': '03.03', '金额': 900},
-            {'日期': '03.04', '金额': 1300},
-            {'日期': '03.05', '金额': 2240},
-            {'日期': '03.06', '金额': 1200},
-            {'日期': '03.07', '金额': 2300}
-          ]
-        },
+        // 折线图
+        VeLineData: {columns: [], rows: []},
+        // 柱状图
+        VeHistogramData: {columns: [], rows: []},
+        // 环形图
+        VeRingData: {columns: [], rows: []},
 
-        VeHistogramData: {
-          columns: ['日期', '人数'],
-          rows: [
-            {'日期': '03.01', '人数': 9},
-            {'日期': '03.02', '人数': 15},
-            {'日期': '03.03', '人数': 13},
-            {'日期': '03.04', '人数': 33},
-            {'日期': '03.05', '人数': 19},
-            {'日期': '03.06', '人数': 28},
-            {'日期': '03.07', '人数': 28}
-          ]
-        },
+        // 店铺id
+        shopId: '',
+        // 企业id
+        entityId: ''
+      }
+    },
 
-        VeRingData: {
-          columns: ['会员', '占比'],
-          rows: [
-            {'会员': '游客', '占比': 35},
-            {'会员': '新会员', '占比': 40},
-            {'会员': '老会员', '占比': 25}
-          ]
+    created: function () {
+      // 判断当前是否存储过entityId
+      let
+          sEId = sessionStorage.getItem('entityId'),
+          qEId = this.$route.query.entityId;
+
+      if (qEId) {
+        this.entityId = qEId;
+        sessionStorage.setItem('entityId', qEId);
+      } else {
+        if (sEId && sEId !== 'undefined') {
+          this.entityId = sEId;
         }
       }
     },
+
     mounted: function () {
-      // this.Axios('url');
+      if (!this.entityId) return this.showMessage('请先登录！');
+
+      // 获取图表数据
+      this.getChartsData();
     },
 
     methods: {
-      // 加载轮播数据
-    },
+      // 获取图表数据
+      getChartsData: function () {
+        this.lLoading = true;
+        this.hLoading = true;
+        this.rLoading = true;
 
-    watch: {
-      index(val) {
-        console.log(val);
+        this.Axios({
+          method: 'post',
+          url: '/api/selectcg/selectdailysalesreportAppData.do?' + Date.now(),
+          data: this.$qs.stringify({entityId: this.entityId, fShopNo: this.shopId})
+        }).then((res) => {
+          let
+              data = res.data,
+              code = +data.returnCode;
+
+          // 近7日销售日报表
+          this.lLoading = false;
+          this.VeLineData = !code ? {columns: ['日期', '金额'], rows: data.sellList} : {columns: [], rows: []};
+          this.lEmpty = !this.VeLineData.rows.length;
+
+          // 近7日会员增长趋势
+          this.hLoading = false;
+          this.VeHistogramData = !code ? {columns: ['日期', '人数'], rows: data.memberList} : {columns: [], rows: []};
+          this.hEmpty = !this.VeHistogramData.rows.length;
+
+          // 近7日消费占比
+          this.rLoading = false;
+          this.VeRingData = !code ? {columns: ['会员', '占比'], rows: data.consumeList} : {columns: [], rows: []};
+          this.rEmpty = !this.VeRingData.rows.length;
+
+          console.log(this.lEmpty, this.hEmpty, this.rEmpty);
+        }).catch((err) => {
+          console.log(err);
+        });
+      },
+
+      // 更新选择的店铺
+      updateShopId: function (id) {
+        this.shopId = id;
+        // 重新请求图表数据
+        this.getChartsData();
       }
     }
   }
@@ -174,10 +220,8 @@
 <style lang="stylus">
   .data-center
     height 100%
-    .mt-opacity-header
+    .mint-header
       background-color rgba(0, 0, 0, 0)
-      h1.mint-header-title
-        font-size 18px
 
     .data-roll
       height 320px
@@ -189,6 +233,10 @@
 
     .data-charts-content
       width 100%
+      .v-charts-component-loading, .v-charts-data-empty
+        top 30px
+        height 232px
+        background-color #ffffff
       .charts-div
         padding 10px
         width 88%
@@ -210,10 +258,11 @@
           top -30px
           text-align left
         .ve-ring
-          top -84px
+          top -66px
           text-align left
 
       .data-consumption-ratio
+        height 266px
         .title-right
           display flex
           li
@@ -233,6 +282,9 @@
               background-color #FFAA22
             .label-tourist
               background-color #FF6581
+        .v-charts-component-loading, .v-charts-data-empty
+          top 66px
+          height 246px
 
       .data-rank
         height 132px
@@ -252,4 +304,5 @@
               flex-direction column
               justify-content center
               align-items center
+
 </style>

@@ -1,23 +1,17 @@
 <template>
   <div class="content store-record">
-    <mt-header class="mt-header" :title="title">
-      <router-link to="/index" slot="left">
-        <mt-button icon="back"></mt-button>
-      </router-link>
-      <mt-button icon="more" slot="right"></mt-button>
-    </mt-header>
+    <Header :header="header"/>
+    <!--<mt-header class="mt-header" :title="title">-->
+    <!--<router-link to="/index" slot="left">-->
+    <!--<mt-button icon="back"></mt-button>-->
+    <!--</router-link>-->
+    <!--<mt-button slot="right"><img class="mt-store-selection" src="../assets/images/icon_store_selection@2x.png"></mt-button>-->
+    <!--</mt-header>-->
 
     <!-- 店铺业绩内容 -->
     <div class="list store-record">
-      <mt-navbar v-model="selected">
-        <mt-tab-item id="0">今天</mt-tab-item>
-        <mt-tab-item id="1">昨天</mt-tab-item>
-        <mt-tab-item id="2">近7天</mt-tab-item>
-        <mt-tab-item id="3">近30天</mt-tab-item>
-        <mt-tab-item id="-1">自定义</mt-tab-item>
-      </mt-navbar>
-
-      <Search :wrapperClass="wrapperClass"/>
+      <Navbar @updateSelected="updateSelected" @updateTime="updateTime"/>
+      <Search :wrapperClass="wrapperClass" @updateCustom="updateCustom"/>
 
       <mt-tab-container v-model="selected">
         <mt-tab-container-item id="0">
@@ -84,23 +78,51 @@
 </template>
 
 <script>
+  import Header from '@/components/Header.vue';
+  import Navbar from '@/components/Navbar.vue'
   import Search from '@/components/Search.vue'
 
   export default {
     name: "StoreRecord",
-    components: {Search},
+    components: {Header, Navbar, Search},
 
     data: function () {
       return {
-        title: "店铺业绩",
+        header: {
+          back: true,
+          to: '/index',
+          title: "店铺业绩"
+        },
         selected: '0',
         wrapperClass: {'mt-date': false}
       }
     },
 
+    methods: {
+      // 更新自定义：时间区间和列表请求
+      updateCustom: function (start, end) {
+        this.startTime = start;
+        this.endTime = end;
+
+        // let custom = this.listValues[this.selected];
+        // if (custom.start !== this.startTime || custom.end !== this.endTime || !custom.data) this.loadSalesDetailsList();
+      },
+
+      // 更改tab页选择状态
+      updateSelected: function (id) {
+        this.selected = id;
+      },
+
+      // tab页切换更改时间
+      updateTime: function (start, end) {
+        this.startTime = start;
+        this.endTime = end;
+      },
+    },
+
     watch: {
       selected: function (id) {
-        if (+id === -1) {
+        if (+id === 4) {
           // 显示自定义时间间隔
           this.wrapperClass = {'mt-date': true}
         } else {

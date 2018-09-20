@@ -45,16 +45,19 @@ export default new Router({
     {
       path: '/saleDetails',
       name: 'saleDetails',
+      meta: {index: 1},
       component: () => import('./views/SaleDetails.vue')
     },
     {
       path: '/stockCount',
       name: 'stockCount',
+      meta: {index: 1},
       component: () => import('./views/StockCount.vue')
     },
     {
       path: '/',
       name: 'index',
+      meta: {index: 0},
       redirect: '/index'
     }
   ]

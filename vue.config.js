@@ -1,9 +1,9 @@
 module.exports = {
-  baseUrl: '/',
+  baseUrl: '/stewards',
   devServer: {
     proxy: {
       '/api': {
-        target: 'http://192.168.1.66:8002/stewards',
+        target: 'http://www.ebi365.com/stewards',
         ws: true,
         changeOrigin: true,
         pathRewrite: {

@@ -1,101 +1,73 @@
 <template>
-  <div :class="list">
-    <mt-navbar v-model="selected">
-      <mt-tab-item id="0">今天</mt-tab-item>
-      <mt-tab-item id="1">昨天</mt-tab-item>
-      <mt-tab-item id="2">近7天</mt-tab-item>
-      <mt-tab-item id="3">近30天</mt-tab-item>
-      <mt-tab-item id="-1">自定义</mt-tab-item>
-    </mt-navbar>
-
-    <Search :pHolder="pHolder"/>
-
-    <mt-tab-container v-model="selected">
-      <mt-tab-container-item id="0">
-        <ul :class="inner">
-          <li>
-            <div class="list-left">
-              <div class="list-num">1</div>
-              <div class="list-content">
-                <span class="list-title">周新雨</span>
-                <span class="list-intro">城西银泰店</span>
-              </div>
-            </div>
-            <div class="list-right">2000.00</div>
-          </li>
-          <li>
-            <div class="list-left">
-              <div class="list-num">2</div>
-              <div class="list-content">
-                <span class="list-title">刘丽</span>
-                <span class="list-intro">城西银泰店</span>
-              </div>
-            </div>
-            <div class="list-right">2000.00</div>
-          </li>
-          <li>
-            <div class="list-left">
-              <div class="list-num">3</div>
-              <div class="list-content">
-                <span class="list-title">张三</span>
-                <span class="list-intro">城西银泰店</span>
-              </div>
-            </div>
-            <div class="list-right">2000.00</div>
-          </li>
-          <li>
-            <div class="list-left">
-              <div class="list-num">4</div>
-              <div class="list-content">
-                <span class="list-title">赵四</span>
-                <span class="list-intro">城西银泰店</span>
-              </div>
-            </div>
-            <div class="list-right">2000.00</div>
-          </li>
-          <li>
-            <div class="list-left">
-              <div class="list-num">5</div>
-              <div class="list-content">
-                <span class="list-title">雷涛</span>
-                <span class="list-intro">城西银泰店</span>
-              </div>
-            </div>
-            <div class="list-right">2000.00</div>
-          </li>
-        </ul>
-      </mt-tab-container-item>
-      <mt-tab-container-item id="1">
-      </mt-tab-container-item>
-      <mt-tab-container-item id="2">
-      </mt-tab-container-item>
-      <mt-tab-container-item id="3">
-      </mt-tab-container-item>
-      <mt-tab-container-item id="-1">
-        <!--<mt-cell v-for="n in 6" :title="'选项 ' + n"/>-->
-      </mt-tab-container-item>
-    </mt-tab-container>
-  </div>
+  <mt-navbar v-model="selected">
+    <mt-tab-item id="0">今天</mt-tab-item>
+    <mt-tab-item id="1">昨天</mt-tab-item>
+    <mt-tab-item id="2">近7天</mt-tab-item>
+    <mt-tab-item id="3">近30天</mt-tab-item>
+    <mt-tab-item id="4">自定义</mt-tab-item>
+  </mt-navbar>
 </template>
 
 <script>
-  import Search from '@/components/Search.vue'
-
   export default {
     name: "Navbar",
-    props: {
-      list: String,
-      pHolder: String,
-      inner: String
+    data: function () {
+      return {
+        selected: '0',
+        start: '',
+        end: ''
+      }
     },
-    components: {
-      Search
+
+    methods: {
+      // 获取切换tab的日期区间
+      getNavbarDate: function (id) {
+        let now = this.getNowFormatDate();
+
+        switch (+id) {
+          case 0:
+            // 今天
+            this.start = now + ' 00:00:00';
+            this.end = now + ' 23:59:59';
+            break;
+          case 1:
+            // 昨天
+            let yesterday = this.getNowFormatDate('', -1);
+            this.start = yesterday + ' 00:00:00';
+            this.end = yesterday + ' 23:59:59';
+            break;
+          case 2:
+            // 近7天
+            let week = this.getNowFormatDate('', -7);
+            this.start = week + ' 00:00:00';
+            this.end = now + ' 23:59:59';
+            break;
+          case 3:
+            // 近30天
+            let month = this.getNowFormatDate('', -30);
+            this.start = month + ' 00:00:00';
+            this.end = now + ' 23:59:59';
+            break;
+        }
+      }
+    },
+
+    watch: {
+      selected: function (id) {
+        // 非自定义，触发更改父组件起始时间
+        if (+id !== 4) {
+          this.getNavbarDate(id);
+          // 更新时间
+          this.$emit('updateTime', this.start, this.end);
+        }
+
+        this.$emit('updateSelected', '' + id);
+      }
     }
   }
 </script>
 
 <style lang="stylus">
-
 
 
 </style>

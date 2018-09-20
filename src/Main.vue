@@ -64,10 +64,16 @@
       overflow-y auto
       transform translate3d(0, 0, 0)
       background-color rgb(245, 245, 245)
-    .mt-header
-      background-color #3399FF
-      h1.mint-header-title
-        font-size 18px
+
+  .mint-header, #mt-popup .mint-header
+    background-color #3399FF
+    h1.mint-header-title
+      font-size 18px
+    .mint-button-text
+      display flex
+      img.mt-store-selection
+        width 20px
+        height 20px
 
   @-webkit-keyframes moveToLeft {
     to {
@@ -162,17 +168,21 @@
   .slide-left-enter-active
     z-index 999
     animation moveFromRight .6s ease both
+    -o-animation moveFromRight .6s ease both
     -moz-animation moveFromRight .6s ease both
     -webkit-animation moveFromRight .6s ease both
 
   .slide-right-enter-active
     z-index 999
     animation moveFromLeft .6s ease both
+    -o-animation moveFromLeft .6s ease both
     -moz-animation moveFromLeft .6s ease both
     -webkit-animation moveFromLeft .6s ease both
 
   .slide-left-leave-active
+
     animation moveToLeft .6s ease both
+    -o-animation moveToLeft .6s ease both
     -moz-animation moveToLeft .6s ease both
     -webkit-animation moveToLeft .6s ease both
 
@@ -183,6 +193,7 @@
 
   /*tab切换页*/
   .list
+    height calc(100% - 40px)
     .mint-navbar
       border-bottom 1px solid #dddddd
       .mint-tab-item
@@ -194,6 +205,7 @@
         margin-bottom -1px
 
     .mint-tab-container
+      overflow-y auto
       margin-top 10px
       background-color #ffffff
       ul.list-inner
@@ -224,6 +236,24 @@
           .list-right
             color #F55957
 
+      ul.list-inner-o
+        li
+          padding 10px 14px
+          height 100px
+          display flex
+          flex-direction column
+          text-align left
+          justify-content space-between
+          border-bottom 1px solid #dddddd
+          p.list-title
+            font-size 16px
+            color #333333
+            overflow hidden
+            text-overflow ellipsis
+            white-space nowrap
+          p.list-intro
+            color #666666
+
   /*取消router-link自带的下划线和字体颜色*/
   .custom-link
     color #333333
@@ -240,4 +270,28 @@
   /*增加mint-toast错误样式*/
   .mint-toast.mint-toast-error
     background-color rgba(255, 0, 0, .7)
+
+  /*修改mint-popup宽度*/
+  .mint-popup
+    width 100%
+
+  /*自定义向右的符号*/
+  .mt-allow-right
+    display inline-block
+    margin-left 8px
+    width 5px
+    height 5px
+    border 2px solid #979797
+    border-bottom-width 0
+    border-left-width 0
+    -webkit-transform translateY(-24%) rotate(45deg)
+    -moz-transform translateY(-24%) rotate(45deg)
+    -ms-transform translateY(-24%) rotate(45deg)
+    -o-transform translateY(-24%) rotate(45deg)
+    transform translateY(-24%) rotate(45deg)
+
+  /*message box 按钮字体大小*/
+  .mint-msgbox
+    .mint-msgbox-btn
+      font-size 16px
 </style>

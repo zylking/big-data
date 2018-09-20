@@ -2,7 +2,7 @@
   <ul class="data-roll-ul" @touchstart="touchStartHandle" @touchmove="touchMoveHandle" @touchend="touchEndHandle">
     <li>
       <img src="../assets/images/icon_sales@2x.png">
-      <p class="swiper-card-num">204800.00</p>
+      <p class="swiper-card-num">{{todaySales}}</p>
       <p class="swiper-card-title">今日销售额(元)</p>
       <router-link to="/saleDetails">
         <mt-button size="small" type="primary">查看详情</mt-button>
@@ -10,25 +10,33 @@
     </li>
     <li>
       <img src="../assets/images/icon_refund@2x.png">
-      <p class="swiper-card-num">12500.00</p>
+      <p class="swiper-card-num">{{todayRefunds}}</p>
       <p class="swiper-card-title">今日退货金额(元)</p>
-      <router-link to="/saleDetails">
+      <router-link to="/wait">
         <mt-button size="small" type="primary">查看详情</mt-button>
       </router-link>
     </li>
     <li>
       <img src="../assets/images/icon_recharge@2x.png">
-      <p class="swiper-card-num">651240.00</p>
+      <p class="swiper-card-num">{{todayCredit}}</p>
       <p class="swiper-card-title">今日充值(元)</p>
-      <router-link to="/saleDetails">
+      <router-link to="/wait">
         <mt-button size="small" type="primary">查看详情</mt-button>
       </router-link>
     </li>
     <li>
       <img src="../assets/images/icon_vip@2x.png">
-      <p class="swiper-card-num">20</p>
+      <p class="swiper-card-num">{{todayMember}}</p>
       <p class="swiper-card-title">今日新增会员</p>
-      <router-link to="/saleDetails">
+      <router-link to="/wait">
+        <mt-button size="small" type="primary">查看详情</mt-button>
+      </router-link>
+    </li>
+    <li>
+      <img src="../assets/images/icon_stock@2x.png">
+      <p class="swiper-card-num">{{todayStock}}</p>
+      <p class="swiper-card-title">库存总量</p>
+      <router-link to="/stockCount">
         <mt-button size="small" type="primary">查看详情</mt-button>
       </router-link>
     </li>
@@ -46,18 +54,58 @@
         offsetY: 0,
         hasMoved: 0,
         lock: 0,
-        css: ['active', 'prev', 'next', 'hide'],
+        css: ['active', 'prev', 'next', 'last-prev', 'last-next'],
         swiperAuto: true,   // 默认自动轮播是开启的
-        swiperTimer: ''
+        swiperTimer: '',
+
+        entityId: '',
+
+        // 页面数据
+        todaySales: '0.00',
+        todayRefunds: '0.00',
+        todayCredit: '0.00',
+        todayMember: 0,
+        todayStock: 0
       };
     },
-    props: {},
+    props: ['shopId'],
     mounted: function () {
-      // 页面加载完成后，开启自动轮播功能
-      this.init();
+      let sEId = sessionStorage.getItem('entityId');
+      if (!sEId || sEId === 'undefined') {
+        // 加载完成后开启轮播
+        return this.init();
+      }
+
+      this.entityId = sEId;
+      // 获取数据
+      this.getSwiperData();
     },
 
     methods: {
+      // 获取轮播数据
+      getSwiperData: function () {
+        this.Axios({
+          method: 'post',
+          url: '/api/admin/wholesaler/getAppTodayMonthAppData.do',
+          data: this.$qs.stringify({entityId: this.entityId, fShopNo: this.shopId})
+        }).then((res) => {
+          let
+              data = res.data,
+              code = +data.returnCode;
+
+          this.todaySales = !code ? data.todaySellMoney : '0.00';
+          this.todayRefunds = !code ? data.todayRefundsMoney : '0.00';
+          this.todayCredit = !code ? data.todayCreditMoney : '0.00';
+          this.todayMember = !code ? data.todayAddMenber : 0;
+          this.todayStock = !code ? data.todayStock : 0;
+
+          // 加载完成后开启轮播
+          this.init();
+        }).catch((err) => {
+          console.log(err);
+        });
+      },
+
       touchStartHandle: function (e) {
         // 当手动滑动时，清除自动轮播
         this.swiperAuto = false;
@@ -151,7 +199,12 @@
         this.selfSwiper();
       }
     },
-    watch: {}
+    watch: {
+      shopId: function () {
+        // 如果店铺ID发生变更，则重新请求轮播数据
+        this.getSwiperData();
+      }
+    }
   }
 </script>
 
@@ -173,6 +226,11 @@
       position absolute
       width 170px
       height 190px
+      left 0
+      top 0
+      right 0
+      bottom 0
+      margin auto
       border-radius 5px
       background-color #ffffff
       .swiper-card-num
@@ -183,11 +241,15 @@
         color #666666
         margin-bottom 16px
       .mint-button--small
+        padding 0
         width 88px
         height 30px
       img
         width 39px
         margin-bottom 8px
+
+    li:first-child
+      z-index 4
 
     li.active
       opacity 1
@@ -196,21 +258,28 @@
       transform translate3d(0, 0, 10px) scale3d(1, 1, 1)
       -webkit-transform translate3d(0, 0, 10px) scale3d(1, 1, 1)
     li.next
-      opacity .7
+      opacity .8
       z-index 2
       visibility visible
-      transform translate3d(46px, 0, 6px) scale3d(.8, .8, 1)
-      -webkit-transform translate3d(46px, 0, 6px) scale3d(.8, .8, 1)
+      transform translate3d(46px, 0, 6px) scale3d(.75, .85, 1)
+      -webkit-transform translate3d(46px, 0, 6px) scale3d(.75, .85, 1)
     li.prev
-      opacity .7
+      opacity .8
       z-index 2
       visibility visible
-      transform translate3d(-46px, 0, 6px) scale3d(.8, .8, 1)
-      -webkit-transform translate3d(-46px, 0, 6px) scale3d(.8, .8, 1)
-    li.hide
-      opacity 1
+      transform translate3d(-46px, 0, 6px) scale3d(.75, .85, 1)
+      -webkit-transform translate3d(-46px, 0, 6px) scale3d(.75, .85, 1)
+    li.last-prev
+      opacity .55
       z-index 1
-      -webkit-transform translate3d(0, 0, 2px) scale3d(.667, .667, 1)
+      transform translate3d(-80px, 0, 2px) scale3d(.6, .7, 1)
+      -webkit-transform translate3d(-80px, 0, 2px) scale3d(.6, .7, 1)
+      visibility visible
+    li.last-next
+      opacity .55
+      z-index 1
+      transform translate3d(80px, 0, 2px) scale3d(.6, .7, 1)
+      -webkit-transform translate3d(80px, 0, 2px) scale3d(.6, .7, 1)
       visibility visible
     .transition
       transition transform .5s ease, opacity .5s ease

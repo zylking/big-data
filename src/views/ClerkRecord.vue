@@ -1,87 +1,27 @@
 <template>
   <div class="content clerk-record">
-    <mt-header class="mt-header" title="店员业绩">
-      <router-link to="/index" slot="left">
-        <mt-button icon="back"></mt-button>
-      </router-link>
-      <mt-button icon="more" slot="right"></mt-button>
-    </mt-header>
+    <Header :header="header" @updateShopId="updateShopId"/>
 
     <!-- 店员业绩内容 -->
     <div class="list clerk-list">
-      <mt-navbar v-model="selected">
-        <mt-tab-item id="0">今天</mt-tab-item>
-        <mt-tab-item id="1">昨天</mt-tab-item>
-        <mt-tab-item id="2">近7天</mt-tab-item>
-        <mt-tab-item id="3">近30天</mt-tab-item>
-        <mt-tab-item id="-1">自定义</mt-tab-item>
-      </mt-navbar>
-
-      <Search :pHolder="holder" :wrapperClass="wrapperClass"/>
+      <Navbar @updateSelected="updateSelected" @updateTime="updateTime"/>
+      <Search :pHolder="holder" :wrapperClass="wrapperClass" @updateInput="updateEmpName" @updateCustom="updateCustom"/>
 
       <mt-tab-container v-model="selected">
         <mt-tab-container-item id="0">
-          <ul class="list-inner clerk-list-inner">
-            <li>
-              <div class="list-left">
-                <div class="list-num">1</div>
-                <div class="list-content">
-                  <span class="list-title">周新雨</span>
-                  <span class="list-intro">城西银泰店</span>
-                </div>
-              </div>
-              <div class="list-right">2000.00</div>
-            </li>
-            <li>
-              <div class="list-left">
-                <div class="list-num">2</div>
-                <div class="list-content">
-                  <span class="list-title">刘丽</span>
-                  <span class="list-intro">城西银泰店</span>
-                </div>
-              </div>
-              <div class="list-right">2000.00</div>
-            </li>
-            <li>
-              <div class="list-left">
-                <div class="list-num">3</div>
-                <div class="list-content">
-                  <span class="list-title">张三</span>
-                  <span class="list-intro">城西银泰店</span>
-                </div>
-              </div>
-              <div class="list-right">2000.00</div>
-            </li>
-            <li>
-              <div class="list-left">
-                <div class="list-num">4</div>
-                <div class="list-content">
-                  <span class="list-title">赵四</span>
-                  <span class="list-intro">城西银泰店</span>
-                </div>
-              </div>
-              <div class="list-right">2000.00</div>
-            </li>
-            <li>
-              <div class="list-left">
-                <div class="list-num">5</div>
-                <div class="list-content">
-                  <span class="list-title">雷涛</span>
-                  <span class="list-intro">城西银泰店</span>
-                </div>
-              </div>
-              <div class="list-right">2000.00</div>
-            </li>
-          </ul>
+          <ClerkRecordList :recordValues="recordValues[selected]['data']"/>
         </mt-tab-container-item>
         <mt-tab-container-item id="1">
+          <ClerkRecordList :recordValues="recordValues[selected]['data']"/>
         </mt-tab-container-item>
         <mt-tab-container-item id="2">
+          <ClerkRecordList :recordValues="recordValues[selected]['data']"/>
         </mt-tab-container-item>
         <mt-tab-container-item id="3">
+          <ClerkRecordList :recordValues="recordValues[selected]['data']"/>
         </mt-tab-container-item>
-        <mt-tab-container-item id="-1">
-          <!--<mt-cell v-for="n in 6" :title="'选项 ' + n"/>-->
+        <mt-tab-container-item id="4">
+          <ClerkRecordList :recordValues="recordValues[selected]['data']"/>
         </mt-tab-container-item>
       </mt-tab-container>
     </div>
@@ -89,53 +29,139 @@
 </template>
 
 <script>
-  import Search from '@/components/Search.vue'
+  import Header from '@/components/Header.vue';
+  import Navbar from '@/components/Navbar.vue';
+  import Search from '@/components/Search.vue';
+  import ClerkRecordList from '@/components/ClerkRecordList.vue';
 
   export default {
     name: "ClerkRecord",
-    components: {
-      Search
-    },
+    components: {Header, Navbar, Search, ClerkRecordList},
     data: function () {
       return {
+        header: {
+          back: true,
+          to: '/index',
+          title: '店员业绩'
+        },
         holder: "店员姓名",
         selected: '0',
-        wrapperClass: {'mt-search': true, 'mt-date': false}
+        wrapperClass: {'mt-search': true, 'mt-date': false},
+
+        shopId: '',
+        entityId: '',
+        // 输入框输入的店员名称
+        empName: '',
+
+        // 今天、昨天、近7天、近30天、自定义时间区间的数据
+        recordValues: {'0': {}, '1': {}, '2': {}, '3': {}, '4': {}},
       }
     },
 
     mounted: function () {
-      this.loadList();
+      this.entityId = sessionStorage.getItem('entityId');
+      // 初始化
+      this.initTimeZones();
+      // 加载列表
+      this.loadClerkRecordList();
+    },
+
+    methods: {
+      // 初始化
+      initTimeZones: function () {
+        let now = this.getNowFormatDate();
+        this.startTime = now + ' 00:00:00';
+        this.endTime = now + ' 23:59:59';
+      },
+
+      // 加载店员业绩列表
+      loadClerkRecordList: function () {
+        let data = {
+          start: 0,
+          rows: 10,
+          entityId: this.entityId,
+          fShopNo: this.shopId,
+          empName: this.empName,
+          startTime: this.startTime,
+          endTime: this.endTime
+        };
+
+        this.Axios({
+          method: 'post',
+          url: '/api/Salesanaly/selectByEmpMoneyAppData.do',
+          data: this.$qs.stringify(data)
+        }).then((res) => {
+          this.recordValues[this.selected] = {empName: this.empName, data: res.data.empList};
+          if (this.selected === '4') {
+            this.recordValues[this.selected].start = this.startTime;
+            this.recordValues[this.selected].end = this.endTime;
+          }
+        }).catch(function (err) {
+          console.log(err);
+        });
+      },
+
+      // 更新输入的店员名称
+      updateEmpName: function (name) {
+        if (this.empName === name) return;
+
+        this.empName = name;
+        this.loadClerkRecordList();
+      },
+
+      // tab页切换更改时间
+      updateTime: function (start, end) {
+        this.startTime = start;
+        this.endTime = end;
+      },
+
+      // 更新自定义：时间区间和列表请求
+      updateCustom: function (start, end) {
+        let custom = this.recordValues[this.selected];
+        if (custom.start !== start || custom.end !== end) {
+          this.startTime = start;
+          this.endTime = end;
+
+          this.loadClerkRecordList();
+        }
+      },
+
+      // 更改tab页选择状态
+      updateSelected: function (id) {
+        this.selected = id;
+      },
+
+      // 更新店铺ID
+      updateShopId: function (id) {
+        this.shopId = id;
+        this.loadClerkRecordList();
+      }
     },
 
     watch: {
       selected: function (id) {
-        if (+id === -1) {
+        let values = this.recordValues[id];
+        if (+id === 4) {
           // 显示自定义时间间隔
-          this.wrapperClass = {'mt-search': false, 'mt-date': true}
+          this.wrapperClass = {'mt-search': false, 'mt-date': true};
+          // 如果没有加载过自定义区间的数据， 则重新初始化时间为当前时间，然后加载
+          if ((!values.start && !values.end) || values.empName !== this.empName) {
+            this.initTimeZones();
+            this.loadClerkRecordList();
+          }
         } else {
-          this.wrapperClass = {'mt-search': true, 'mt-date': false}
+          this.wrapperClass = {'mt-search': true, 'mt-date': false};
+          // 判断切换时，如果
+          if (values.empName !== this.empName) this.loadClerkRecordList();
         }
-      }
-    },
-
-    methods: {
-      // 加载店员业绩列表
-      loadList: function () {
-        this.Axios({
-          method: 'post',
-          url: 'Salesanaly/selectByEmpMoney.do',
-          data: {entityId: 145, fShopNo: 365}
-        }).then(function (res) {
-          console.log('res：', res.data);
-        }).catch(function (err) {
-          console.log(err);
-        });
       }
     }
   }
 </script>
 
 <style lang="stylus">
-
+  .clerk-list
+    height calc(100% - 40px)
+    .mint-tab-container
+      min-height calc(100% - 106px)
 </style>
