@@ -59,6 +59,7 @@ Vue.prototype.showMessage = function (msg) {
 router.beforeEach(function (to, from, next) {
   switch (to.path) {
     case '/index':
+    case '/index.html':
       next();
       break;
     case '/wait':
