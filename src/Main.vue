@@ -16,10 +16,8 @@
     },
 
     watch: {
-      //Ê¹ÓÃwatch ¼àÌı$routerµÄ±ä»¯
       $route: function (to, from) {
         if (to.meta.index > from.meta.index) {
-          //ÉèÖÃ¶¯»­Ãû³Æ
           this.transitionName = 'slide-left';
         } else {
           this.transitionName = 'slide-right';
@@ -191,7 +189,7 @@
     -moz-animation moveToRight .6s ease both
     -webkit-animation moveToRight .6s ease both
 
-  /*tabÇĞ»»Ò³*/
+  /*tabé¡µlistæ ·å¼*/
   .list
     height calc(100% - 40px)
     .mint-navbar
@@ -254,28 +252,28 @@
           p.list-intro
             color #666666
 
-  /*È¡Ïûrouter-link×Ô´øµÄÏÂ»®ÏßºÍ×ÖÌåÑÕÉ«*/
+  /*ä¿®æ”¹router-linké»˜è®¤é“¾æ¥æ ·å¼*/
   .custom-link
     color #333333
     text-decoration none
 
-  /*ĞŞ¸Ämint-ui °´Å¥ÎªÔ²½Ç°´Å¥*/
+  /*ä¿®æ”¹mint-uiæŒ‰é’®æ ·å¼ä¸ºåœ†è§’*/
   button.mint-button
     border-radius 30px
 
-  /*ĞŞ¸Ämint-ui primary±³¾°É«*/
+  /*ä¿®æ”¹mint-ui primaryæŒ‰é’®èƒŒæ™¯è‰²*/
   button.mint-button--primary
     background-color #3399FF
 
-  /*Ôö¼Ómint-toast´íÎóÑùÊ½*/
+  /*è‡ªå®šä¹‰mint-toasté”™è¯¯æ ·å¼*/
   .mint-toast.mint-toast-error
     background-color rgba(255, 0, 0, .7)
 
-  /*ĞŞ¸Ämint-popup¿í¶È*/
+  /*ä¿®æ”¹mint-popupé»˜è®¤å®½åº¦100%*/
   .mint-popup
     width 100%
 
-  /*×Ô¶¨ÒåÏòÓÒµÄ·ûºÅ*/
+  /*è‡ªå®šä¹‰ç®­å¤´æ ·å¼*/
   .mt-allow-right
     display inline-block
     margin-left 8px
@@ -290,8 +288,12 @@
     -o-transform translateY(-24%) rotate(45deg)
     transform translateY(-24%) rotate(45deg)
 
-  /*message box °´Å¥×ÖÌå´óĞ¡*/
+  /*message box å­—ä½“æ ·å¼*/
   .mint-msgbox
     .mint-msgbox-btn
       font-size 16px
+
+  /*åŠ è½½çŠ¶æ€æ ·å¼*/
+  .mint-spinner-double-bounce
+    display inline-block
 </style>

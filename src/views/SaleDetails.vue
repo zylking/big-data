@@ -31,18 +31,23 @@
 
       <mt-tab-container v-model="selected">
         <mt-tab-container-item id="0">
+          <PageLoading v-if="listValues[selected].loading"/>
           <SaleDetailsList :listValues="listValues[selected].data"/>
         </mt-tab-container-item>
         <mt-tab-container-item id="1">
+          <PageLoading v-if="listValues[selected].loading"/>
           <SaleDetailsList :listValues="listValues[selected].data"/>
         </mt-tab-container-item>
         <mt-tab-container-item id="2">
+          <PageLoading v-if="listValues[selected].loading"/>
           <SaleDetailsList :listValues="listValues[selected].data"/>
         </mt-tab-container-item>
         <mt-tab-container-item id="3">
+          <PageLoading v-if="listValues[selected].loading"/>
           <SaleDetailsList :listValues="listValues[selected].data"/>
         </mt-tab-container-item>
         <mt-tab-container-item id="4">
+          <PageLoading v-if="listValues[selected].loading"/>
           <SaleDetailsList :listValues="listValues[selected].data"/>
         </mt-tab-container-item>
       </mt-tab-container>
@@ -56,10 +61,12 @@
   import Search from '@/components/Search.vue';
   import TypeSupplier from '@/components/TypeSupplier.vue';
   import SaleDetailsList from '@/components/SaleDetailsList.vue';
+  import PageLoading from '@/components/PageLoading.vue';
+  import NoResult from '@/components/NoResult.vue';
 
   export default {
     name: "SaleDetails",
-    components: {Header, Navbar, Search, TypeSupplier, SaleDetailsList},
+    components: {Header, Navbar, Search, TypeSupplier, SaleDetailsList, PageLoading, NoResult},
     data: function () {
       return {
         header: {
@@ -84,7 +91,7 @@
         entityId: '',
 
         // 今天、昨天、近7天、近30天的数据
-        listValues: {'0': {}, '1': {}, '2': {}, '3': {}, '4': {}},
+        listValues: {'0': {loading: true}, '1': {}, '2': {}, '3': {}, '4': {}},
         // 用户输入的货品名称或者货品编码
         goodName: '',
         // 类别
@@ -156,7 +163,9 @@
           this.supplier.slots[0].value = dsList.fprovidername;
 
           // 加载销售详情列表
-          this.loadSalesDetailsList();
+          setTimeout(() => {
+            this.loadSalesDetailsList();
+          }, 500);
         }).catch((err) => {
           console.log(err);
         });
@@ -164,6 +173,8 @@
 
       // 加载销售详情列表
       loadSalesDetailsList: function () {
+        this.listValues[this.selected].loading = true;
+
         let data = {
           start: 0,
           rows: 10,
@@ -187,7 +198,13 @@
           this.totalProfit = res.data.totalprofit;
 
           // 存储相应信息，下次切换到该tab页时，如果所选参数一致，则无需再次请求
-          let sale = {type: this.types.id, supplier: this.supplier.id, input: this.goodName, data: res.data.goodsList};
+          let sale = {
+            loading: false,
+            type: this.types.id,
+            supplier: this.supplier.id,
+            input: this.goodName,
+            data: res.data.goodsList
+          };
           if (+this.selected === 4) {
             sale.start = this.startTime;
             sale.end = this.endTime;
@@ -206,14 +223,18 @@
 
             this.types.value = text;
             this.types.id = id;
-            this.loadSalesDetailsList();
+            setTimeout(() => {
+              this.loadSalesDetailsList();
+            }, 500);
             break;
           case 'right':
             if (this.supplier.id === id) return;
 
             this.supplier.value = text;
             this.supplier.id = id;
-            this.loadSalesDetailsList();
+            setTimeout(() => {
+              this.loadSalesDetailsList();
+            }, 500);
             break;
         }
       },
@@ -230,7 +251,11 @@
         this.endTime = end;
 
         let custom = this.listValues[this.selected];
-        if (custom.start !== this.startTime || custom.end !== this.endTime || !custom.data) this.loadSalesDetailsList();
+        if (custom.start !== this.startTime || custom.end !== this.endTime || !custom.data) {
+          setTimeout(() => {
+            this.loadSalesDetailsList();
+          }, 500);
+        }
       },
 
       // 更改tab页选择状态
@@ -244,13 +269,17 @@
 
         this.goodName = val;
         // 加载请求列表
-        this.loadSalesDetailsList();
+        setTimeout(() => {
+          this.loadSalesDetailsList();
+        }, 500);
       },
 
       // 更新店铺ID
       updateShopId: function (id) {
         this.shopId = id;
-        this.loadSalesDetailsList();
+        setTimeout(() => {
+          this.loadSalesDetailsList();
+        }, 500);
       }
     },
 
@@ -265,18 +294,24 @@
           if (!tabData) {
             // 初始化时间区间为当前
             this.initTimeZones();
-            this.loadSalesDetailsList();
+            setTimeout(() => {
+              this.loadSalesDetailsList();
+            }, 500);
           } else {
             // 如果已经加载过自定义的数据，则将时间区间更改成加载过的时间区间
             this.startTime = tabData.start;
             this.endTime = tabData.end;
-            this.loadSalesDetailsList();
+            setTimeout(() => {
+              this.loadSalesDetailsList();
+            }, 500);
           }
         } else {
           this.wrapperClass = {'mt-search': true, 'mt-date': false};
 
           if (!tabData || tabData.type !== this.types.id || tabData.supplier !== this.supplier.id || tabData.input !== this.goodName || !tabData.data) {
-            this.loadSalesDetailsList();
+            setTimeout(() => {
+              this.loadSalesDetailsList();
+            }, 500);
           }
         }
       }

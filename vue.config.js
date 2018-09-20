@@ -3,7 +3,7 @@ module.exports = {
   devServer: {
     proxy: {
       '/api': {
-        target: 'http://www.ebi365.com/stewards',
+        target: 'http://192.168.1.66:8080/stewards', //http://www.ebi365.com/stewards',
         ws: true,
         changeOrigin: true,
         pathRewrite: {
