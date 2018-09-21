@@ -27,6 +27,9 @@ Vue.prototype.MessageBox = Mint.MessageBox;
 Vue.prototype.Axios = Axios;
 Vue.prototype.$qs = qs;
 
+let storeVue = new Vue();
+Vue.prototype.storeVue = storeVue;
+
 /**
  * 获取时间
  * str : 时间格式，可以获取指定的时间
@@ -49,8 +52,24 @@ Vue.prototype.getNowFormatDate = function (str, ago) {
   return year + '-' + month + '-' + day;
 };
 
+/**
+ * 弹出message
+ */
 Vue.prototype.showMessage = function (msg) {
   Mint.MessageBox({title: '提示', message: msg, confirmButtonText: '我知道了', closeOnClickModal: false});
+};
+
+/**
+ * 显示正在加载的状态
+ */
+Vue.prototype.beforeLoading = function (value, callback) {
+  value.data = [];
+  value.loading = true;
+
+  // 让加载状态显示一会，避免造成闪现的状况
+  setTimeout(function () {
+    callback && callback(value);
+  }, 500);
 };
 
 /**

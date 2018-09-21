@@ -1,14 +1,16 @@
 module.exports = {
-  baseUrl: '/stewards/ebiH5',
-  outputDir: 'ebiH5',
+  // 生产环境对应博讯现有项目路径
+  baseUrl: process.env.NODE_ENV === 'production' ? '/stewards/ebiH5' : '/',
+  outputDir: 'ebiH5',           // build之后生成的文件夹名称
+  // 开发环境中请求的代理，实际环境中，并不会使用到该代理
   devServer: {
     proxy: {
-      '/api': {
-        target: 'http://192.168.1.66:8080/stewards', //http://www.ebi365.com/stewards',
+      '/stewards': {
+        target: 'http://192.168.1.66:8080/stewards',
         ws: true,
         changeOrigin: true,
         pathRewrite: {
-          '^/api': '/'
+          '^/stewards': '/'
         }
       }
     }

@@ -8,6 +8,12 @@ export default new Router({
   base: process.env.BASE_URL,
   routes: [
     {
+      path: '/',
+      name: 'index',
+      meta: {index: 0},
+      redirect: '/index'
+    },
+    {
       path: '/index',
       name: 'index',
       meta: {index: 0},   // meta对象的index用来定义当前路由的层级,由小到大,由低到高
@@ -15,8 +21,8 @@ export default new Router({
     },
     {
       path: '/index.html',
-      name: 'index',
-      meta: {index: 0},   // meta对象的index用来定义当前路由的层级,由小到大,由低到高
+      name: 'index1',
+      meta: {index: 0},
       component: DataCenter
     },
     {
@@ -29,24 +35,24 @@ export default new Router({
       // 当访问的时候才会去加载(lazy-loaded)
       component: () => import('./views/ClerkRecord.vue')
     },
-    {
-      path: '/store',
-      name: 'store',
-      meta: {index: 1},
-      component: () => import('./views/StoreRecord.vue')
-    },
-    {
-      path: '/sell',
-      name: 'sell',
-      meta: {index: 1},
-      component: () => import('./views/SellWell.vue')
-    },
-    {
-      path: '/badSell',
-      name: 'badSell',
-      meta: {index: 1},
-      component: () => import('./views/SellBad.vue')
-    },
+    // {
+    //   path: '/store',
+    //   name: 'store',
+    //   meta: {index: 1},
+    //   component: () => import('./views/StoreRecord.vue')
+    // },
+    // {
+    //   path: '/sell',
+    //   name: 'sell',
+    //   meta: {index: 1},
+    //   component: () => import('./views/SellWell.vue')
+    // },
+    // {
+    //   path: '/badSell',
+    //   name: 'badSell',
+    //   meta: {index: 1},
+    //   component: () => import('./views/SellBad.vue')
+    // },
     {
       path: '/saleDetails',
       name: 'saleDetails',
@@ -58,12 +64,6 @@ export default new Router({
       name: 'stockCount',
       meta: {index: 1},
       component: () => import('./views/StockCount.vue')
-    },
-    {
-      path: '/',
-      name: 'index',
-      meta: {index: 0},
-      redirect: '/index'
     }
   ]
 })

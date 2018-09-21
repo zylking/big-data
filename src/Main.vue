@@ -3,12 +3,16 @@
     <transition :name="transitionName">
       <router-view/>
     </transition>
+    <StoreSelectPage/>
   </div>
 </template>
 
 <script>
+  import StoreSelectPage from '@/components/StoreSelectPage.vue';
+
   export default {
     name: 'Main',
+    components: {StoreSelectPage},
     data: function () {
       return {
         transitionName: ''
@@ -206,7 +210,12 @@
       overflow-y auto
       margin-top 10px
       background-color #ffffff
+      .mint-tab-container-wrap
+        height 100%
+      ul.list-inner-o
+        height 100%
       ul.list-inner
+        height 100%
         li
           padding 0 14px
           display flex

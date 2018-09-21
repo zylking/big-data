@@ -1,6 +1,6 @@
 <template>
   <div class="content sale-details">
-    <Header :header="header" @updateShopId="updateShopId"/>
+    <Header :header="header"/>
 
     <!-- 销售详情内容 -->
     <div class="list sales-details-list">
@@ -31,24 +31,29 @@
 
       <mt-tab-container v-model="selected">
         <mt-tab-container-item id="0">
-          <PageLoading v-if="listValues[selected].loading"/>
-          <SaleDetailsList :listValues="listValues[selected].data"/>
+          <PageLoading v-if="values['0'].loading"/>
+          <NoResult v-if="!values['0'].loading && values['0'].noResult"/>
+          <SaleDetailsList v-if="!values['0'].loading && !values['0'].noResult" :listValues="values['0'].data"/>
         </mt-tab-container-item>
         <mt-tab-container-item id="1">
-          <PageLoading v-if="listValues[selected].loading"/>
-          <SaleDetailsList :listValues="listValues[selected].data"/>
+          <PageLoading v-if="values['1'].loading"/>
+          <NoResult v-if="!values['1'].loading && values['1'].noResult"/>
+          <SaleDetailsList v-if="!values['1'].loading && !values['1'].noResult" :listValues="values['1'].data"/>
         </mt-tab-container-item>
         <mt-tab-container-item id="2">
-          <PageLoading v-if="listValues[selected].loading"/>
-          <SaleDetailsList :listValues="listValues[selected].data"/>
+          <PageLoading v-if="values['2'].loading"/>
+          <NoResult v-if="!values['2'].loading && values['2'].noResult"/>
+          <SaleDetailsList v-if="!values['2'].loading && !values['2'].noResult" :listValues="values['2'].data"/>
         </mt-tab-container-item>
         <mt-tab-container-item id="3">
-          <PageLoading v-if="listValues[selected].loading"/>
-          <SaleDetailsList :listValues="listValues[selected].data"/>
+          <PageLoading v-if="values['3'].loading"/>
+          <NoResult v-if="!values['3'].loading && values['3'].noResult"/>
+          <SaleDetailsList v-if="!values['3'].loading && !values['3'].noResult" :listValues="values['3'].data"/>
         </mt-tab-container-item>
         <mt-tab-container-item id="4">
-          <PageLoading v-if="listValues[selected].loading"/>
-          <SaleDetailsList :listValues="listValues[selected].data"/>
+          <PageLoading v-if="values['4'].loading"/>
+          <NoResult v-if="!values['4'].loading && values['4'].noResult"/>
+          <SaleDetailsList v-if="!values['4'].loading && !values['4'].noResult" :listValues="values['4'].data"/>
         </mt-tab-container-item>
       </mt-tab-container>
     </div>
@@ -91,7 +96,7 @@
         entityId: '',
 
         // 今天、昨天、近7天、近30天的数据
-        listValues: {'0': {loading: true}, '1': {}, '2': {}, '3': {}, '4': {}},
+        values: {'0': {loading: true, noResult: false}, '1': {}, '2': {}, '3': {}, '4': {}},
         // 用户输入的货品名称或者货品编码
         goodName: '',
         // 类别
@@ -125,6 +130,11 @@
 
     mounted: function () {
       this.entityId = sessionStorage.getItem('entityId');
+
+      this.storeVue.$on('updateShopId', (id) => {
+        this.shopId = id;
+      });
+
       // 初始化
       this.initTimeZones();
       // 加载类别、供应商
@@ -163,9 +173,9 @@
           this.supplier.slots[0].value = dsList.fprovidername;
 
           // 加载销售详情列表
-          setTimeout(() => {
+          this.beforeLoading(this.values[this.selected], () => {
             this.loadSalesDetailsList();
-          }, 500);
+          });
         }).catch((err) => {
           console.log(err);
         });
@@ -173,8 +183,6 @@
 
       // 加载销售详情列表
       loadSalesDetailsList: function () {
-        this.listValues[this.selected].loading = true;
-
         let data = {
           start: 0,
           rows: 10,
@@ -200,6 +208,7 @@
           // 存储相应信息，下次切换到该tab页时，如果所选参数一致，则无需再次请求
           let sale = {
             loading: false,
+            noResult: !res.data.goodsList.length,
             type: this.types.id,
             supplier: this.supplier.id,
             input: this.goodName,
@@ -209,7 +218,7 @@
             sale.start = this.startTime;
             sale.end = this.endTime;
           }
-          this.listValues[this.selected] = sale;
+          this.values[this.selected] = sale;
         }).catch((err) => {
           console.log(err);
         });
@@ -217,26 +226,23 @@
 
       // 更新类型或供应商ID
       updateTypeSupplier: function (id, text, type) {
+        if ((type === 'left' && this.types.id === id) || (type === 'right' && this.supplier.id === id)) return;
+
         switch (type) {
           case 'left':
-            if (this.types.id === id) return;
-
             this.types.value = text;
             this.types.id = id;
-            setTimeout(() => {
-              this.loadSalesDetailsList();
-            }, 500);
             break;
           case 'right':
-            if (this.supplier.id === id) return;
-
             this.supplier.value = text;
             this.supplier.id = id;
-            setTimeout(() => {
-              this.loadSalesDetailsList();
-            }, 500);
             break;
         }
+
+        // 加载销售详情列表
+        this.beforeLoading(this.values[this.selected], () => {
+          this.loadSalesDetailsList();
+        });
       },
 
       // tab页切换更改时间
@@ -250,11 +256,11 @@
         this.startTime = start;
         this.endTime = end;
 
-        let custom = this.listValues[this.selected];
+        let custom = this.values[this.selected];
         if (custom.start !== this.startTime || custom.end !== this.endTime || !custom.data) {
-          setTimeout(() => {
+          this.beforeLoading(this.values[this.selected], () => {
             this.loadSalesDetailsList();
-          }, 500);
+          });
         }
       },
 
@@ -269,51 +275,35 @@
 
         this.goodName = val;
         // 加载请求列表
-        setTimeout(() => {
+        this.beforeLoading(this.values[this.selected], () => {
           this.loadSalesDetailsList();
-        }, 500);
-      },
-
-      // 更新店铺ID
-      updateShopId: function (id) {
-        this.shopId = id;
-        setTimeout(() => {
-          this.loadSalesDetailsList();
-        }, 500);
+        });
       }
     },
 
     watch: {
       selected: function (id) {
-        let tabData = this.listValues[id];
+        this.wrapperClass = {'mt-search': +id !== 4, 'mt-date': +id === 4};
+        let tabData = this.values[id];
 
-        if (+id === 4) {
-          // 显示自定义时间间隔
-          this.wrapperClass = {'mt-search': false, 'mt-date': true};
-          // 如果不存在tabData，则表示第一次进入
-          if (!tabData) {
-            // 初始化时间区间为当前
-            this.initTimeZones();
-            setTimeout(() => {
-              this.loadSalesDetailsList();
-            }, 500);
-          } else {
-            // 如果已经加载过自定义的数据，则将时间区间更改成加载过的时间区间
+        // 没有数据、或者分类ID不同、或者供应商ID不同、或者与上次输入的商品名称不同，则在切换时，重新加载数据
+        if (!tabData.data || tabData.type !== this.types.id || tabData.supplier !== this.supplier.id || tabData.input !== this.goodName) {
+          // 如果是切换自定义时间，则当前时间区间为自定义显示的区间
+          if (+id === 4) {
             this.startTime = tabData.start;
             this.endTime = tabData.end;
-            setTimeout(() => {
-              this.loadSalesDetailsList();
-            }, 500);
           }
-        } else {
-          this.wrapperClass = {'mt-search': true, 'mt-date': false};
 
-          if (!tabData || tabData.type !== this.types.id || tabData.supplier !== this.supplier.id || tabData.input !== this.goodName || !tabData.data) {
-            setTimeout(() => {
-              this.loadSalesDetailsList();
-            }, 500);
-          }
+          this.beforeLoading(this.values[this.selected], () => {
+            this.loadSalesDetailsList();
+          });
         }
+      },
+
+      shopId: function () {
+        this.beforeLoading(this.values[this.selected], () => {
+          this.loadSalesDetailsList();
+        });
       }
     }
   }

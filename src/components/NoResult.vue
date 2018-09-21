@@ -9,11 +9,24 @@
   export default {
     name: "NoResult",
     props: {
-      message: String
+      message: {
+        default: '搜索不要您要的结果哦~'
+      }
     }
   }
 </script>
 
 <style lang="stylus">
-
+  .mt-no-result
+    display flex
+    flex-direction column
+    height 100%
+    justify-content center
+    align-items center
+    img
+      width 150px
+      transform translateY(-44px)
+    span
+      transform translateY(-56px)
+      color #666666
 </style>

@@ -2,7 +2,7 @@
   <div class="content data-center">
     <!-- 顶部轮播 -->
     <div class="data-roll">
-      <Header :header="header" @updateShopId="updateShopId"/>
+      <Header :header="header"/>
       <div class="data-roll-inner">
         <Swiper :shopId="shopId"/>
       </div>
@@ -166,6 +166,10 @@
     mounted: function () {
       if (!this.entityId) return this.showMessage('请先登录！');
 
+      this.storeVue.$on('updateShopId', (id) => {
+        this.shopId = id;
+      });
+
       // 获取图表数据
       this.getChartsData();
     },
@@ -203,13 +207,12 @@
         }).catch((err) => {
           console.log(err);
         });
-      },
+      }
+    },
 
-      // 更新选择的店铺
-      updateShopId: function (id) {
-        this.shopId = id;
-        // 重新请求图表数据
-        this.getChartsData();
+    watch: {
+      shopId: function () {
+        this.getChartsData(); // 重新请求图表数据
       }
     }
   }

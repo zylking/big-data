@@ -92,6 +92,12 @@
       width 50%
       height 26px
       line-height 26px
+      span
+        display inline-block
+        max-width 80%
+        overflow hidden
+        text-overflow ellipsis
+        white-space nowrap
     li:first-child
       width calc(50% - 1px)
       border-right 1px solid #dddddd

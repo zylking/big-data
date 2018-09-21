@@ -1,6 +1,6 @@
 <template>
   <div class="content stock-count">
-    <Header :header="header" @updateShopId="updateShopId"/>
+    <Header :header="header"/>
 
     <!-- 库存统计内容 -->
     <div class="list stock-count-list">
@@ -21,7 +21,9 @@
 
       <mt-tab-container v-model="selected">
         <mt-tab-container-item id="0">
-          <StockCountList :listValues="listValues"/>
+          <PageLoading v-if="listValues.loading"/>
+          <NoResult v-if="!listValues.loading && listValues.noResult"/>
+          <StockCountList v-if="!listValues.loading && !listValues.noResult" :listValues="listValues.data"/>
         </mt-tab-container-item>
       </mt-tab-container>
     </div>
@@ -33,10 +35,12 @@
   import Search from '@/components/Search.vue';
   import TypeSupplier from '@/components/TypeSupplier.vue';
   import StockCountList from '@/components/StockCountList.vue';
+  import PageLoading from '@/components/PageLoading.vue';
+  import NoResult from '@/components/NoResult.vue';
 
   export default {
     name: "StockCount",
-    components: {Header, Search, TypeSupplier, StockCountList},
+    components: {Header, Search, TypeSupplier, StockCountList, PageLoading, NoResult},
 
     data: function () {
       return {
@@ -55,7 +59,7 @@
 
         stockNum: 0,
         stockMoney: '0.00',
-        listValues: [],
+        listValues: {loading: true, noResult: false, data: []},
 
         // 用户输入的货品名称或者货品编码
         goodName: '',
@@ -90,6 +94,9 @@
 
     mounted: function () {
       this.entityId = sessionStorage.getItem('entityId');
+      this.storeVue.$on('updateShopId', (id) => {
+        this.shopId = id;
+      });
       // 获取仓库和类别
       this.getStockAndType();
     },
@@ -119,7 +126,9 @@
           this.types.slots[0].value = dType.typename;
 
           // 加载库存统计列表
-          this.loadStockCensusList();
+          this.beforeLoading(this.listValues, () => {
+            this.loadStockCensusList();
+          });
         }).catch((err) => {
           console.log(err);
         });
@@ -144,7 +153,11 @@
         }).then((res) => {
           this.stockNum = res.data.stocknums;
           this.stockMoney = res.data.stockmoney;
-          this.listValues = res.data.goodsList;
+          this.listValues = {
+            loading: false,
+            noResult: !res.data.goodsList.length,
+            data: res.data.goodsList
+          };
         }).catch((err) => {
           console.log(err);
         });
@@ -152,22 +165,22 @@
 
       // 更新类型或供应商ID
       updateTypeSupplier: function (id, text, type) {
+        if ((type === 'left' && this.stock.id === id) || (type === 'right' && this.types.id === id)) return;
+
         switch (type) {
           case 'left':
-            if (this.stock.id === id) return;
-
             this.stock.value = text;
             this.stock.id = id;
-            this.loadStockCensusList();
             break;
           case 'right':
-            if (this.types.id === id) return;
-
             this.types.value = text;
             this.types.id = id;
-            this.loadStockCensusList();
             break;
         }
+
+        this.beforeLoading(this.listValues, () => {
+          this.loadStockCensusList();
+        });
       },
 
       // 更新货号名称/编码
@@ -176,12 +189,14 @@
 
         this.goodName = val;
         // 加载请求列表
-        this.loadStockCensusList();
-      },
+        this.beforeLoading(this.listValues, () => {
+          this.loadStockCensusList();
+        });
+      }
+    },
 
-      // 更新店铺ID
-      updateShopId: function (id) {
-        this.shopId = id;
+    watch: {
+      shopId: function () {
         this.getStockAndType();
       }
     }
@@ -202,15 +217,8 @@
       height 26px
       line-height 26px
       .mt-allow-right
-        display inline-block
-        margin-left 8px
-        width 5px
-        height 5px
-        border 2px solid #979797
-        border-bottom-width 0
-        border-left-width 0
-        -webkit-transform translateY(-24%) rotate(45deg)
-        transform translateY(-24%) rotate(45deg)
+        -webkit-transform translateY(-9px) rotate(45deg)
+        transform translateY(-9px) rotate(45deg)
     li:first-child
       width calc(50% - 1px)
       border-right 1px solid #dddddd
