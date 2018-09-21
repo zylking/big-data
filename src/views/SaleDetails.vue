@@ -143,7 +143,7 @@
       loadTypeAndSupplier: function () {
         this.Axios({
           method: 'post',
-          url: '/api/admin/provider/getAllPrividerAppData.do',
+          url: '/stewards/admin/provider/getAllPrividerAppData.do',
           data: this.$qs.stringify({entityId: this.entityId})
         }).then((res) => {
           let
@@ -189,7 +189,7 @@
 
         this.Axios({
           method: 'post',
-          url: '/api/MDsellShow/getAppSellDetailAppData.do',
+          url: '/stewards/MDsellShow/getAppSellDetailAppData.do',
           data: this.$qs.stringify(data)
         }).then((res) => {
           this.salesCount = res.data.selloutnum;

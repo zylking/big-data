@@ -86,7 +86,7 @@
       getSwiperData: function () {
         this.Axios({
           method: 'post',
-          url: '/api/admin/wholesaler/getAppTodayMonthAppData.do',
+          url: '/stewards/admin/wholesaler/getAppTodayMonthAppData.do',
           data: this.$qs.stringify({entityId: this.entityId, fShopNo: this.shopId})
         }).then((res) => {
           let

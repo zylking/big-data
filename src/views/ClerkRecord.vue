@@ -88,7 +88,7 @@
 
         this.Axios({
           method: 'post',
-          url: '/api/Salesanaly/selectByEmpMoneyAppData.do',
+          url: '/stewards/Salesanaly/selectByEmpMoneyAppData.do',
           data: this.$qs.stringify(data)
         }).then((res) => {
           this.recordValues[this.selected] = {empName: this.empName, data: res.data.empList};

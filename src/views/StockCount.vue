@@ -99,7 +99,7 @@
       getStockAndType: function () {
         this.Axios({
           method: 'post',
-          url: '/api/storage/selectAllStockAppData.do',
+          url: '/stewards/storage/selectAllStockAppData.do',
           data: this.$qs.stringify({entityId: this.entityId, fShopNo: this.shopId})
         }).then((res) => {
           let
@@ -139,7 +139,7 @@
 
         this.Axios({
           method: 'post',
-          url: '/api/cdemand/getAppStockAppData.do',
+          url: '/stewards/cdemand/getAppStockAppData.do',
           data: this.$qs.stringify(data)
         }).then((res) => {
           this.stockNum = res.data.stocknums;

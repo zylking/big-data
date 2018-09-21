@@ -52,12 +52,14 @@
         wrapperClass: {'mt-search': true},
 
         shopName: '',
-        shopList: []
+        shopList: [],
+        entityId: ''
       }
     },
 
     mounted: function () {
       if (!this.isSessionEntityId()) return;
+      this.entityId = sessionStorage.getItem('entityId');
 
       // 加载门店列表
       this.loadStoreList();
@@ -68,8 +70,8 @@
       loadStoreList: function () {
         this.Axios({
           method: 'post',
-          url: '/api/myshop/selectAllShopAppData.do',
-          data: this.$qs.stringify({entityId: this.header.entityId, shopName: this.shopName})
+          url: '/stewards/myshop/selectAllShopAppData.do',
+          data: this.$qs.stringify({entityId: this.entityId, shopName: this.shopName})
         }).then((res) => {
           this.shopList = res.data.shopList;
         }).catch((err) => {

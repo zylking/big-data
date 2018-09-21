@@ -179,7 +179,7 @@
 
         this.Axios({
           method: 'post',
-          url: '/api/selectcg/selectdailysalesreportAppData.do?' + Date.now(),
+          url: '/stewards/selectcg/selectdailysalesreportAppData.do?' + Date.now(),
           data: this.$qs.stringify({entityId: this.entityId, fShopNo: this.shopId})
         }).then((res) => {
           let
@@ -200,8 +200,6 @@
           this.rLoading = false;
           this.VeRingData = !code ? {columns: ['会员', '占比'], rows: data.consumeList} : {columns: [], rows: []};
           this.rEmpty = !this.VeRingData.rows.length;
-
-          console.log(this.lEmpty, this.hEmpty, this.rEmpty);
         }).catch((err) => {
           console.log(err);
         });
