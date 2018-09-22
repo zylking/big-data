@@ -166,9 +166,6 @@
         this.shopId = id;
       });
 
-      console.log(VeRing);
-      // VeRing.dispatchAction({type: 'highlight',seriesIndex: 0,dataIndex: 0});
-
       // 获取图表数据
       this.getChartsData();
     },
