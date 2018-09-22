@@ -211,7 +211,7 @@
             type: this.types.id,
             supplier: this.supplier.id,
             input: this.goodName,
-            data: current.data ? goodsList : current.data.concat(goodsList)
+            data: current.data ? current.data.concat(goodsList) : goodsList
           };
 
           if (+this.selected === 4) {

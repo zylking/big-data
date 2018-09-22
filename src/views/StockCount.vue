@@ -137,7 +137,8 @@
       // 加载库存统计列表
       loadStockCensusList: function (callback) {
         let
-            start = this.values.start,
+            current = this.values,
+            start = current.start,
             data = {
               start: start,
               rows: 10,
@@ -162,7 +163,7 @@
             noMore: goodsList.length === 10,
             loading: false,
             noResult: start === 0 && !goodsList.length,
-            data: goodsList
+            data: current.data ? current.data.concat(goodsList) : goodsList
           };
 
           // 滚动加载回调

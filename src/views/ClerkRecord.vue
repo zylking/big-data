@@ -80,7 +80,8 @@
       // 加载店员业绩列表
       loadClerkRecordList: function (callback) {
         let
-            start = this.values[this.selected].start,
+            current = this.values[this.selected],
+            start = current.start,
             data = {
               start: start,
               rows: 10,
@@ -104,7 +105,7 @@
             loading: false,
             noResult: start === 0 && !empList.length,
             empName: this.empName,
-            data: empList
+            data: current.data ? current.data.concat(empList) : empList
           };
           if (this.selected === '4') {
             this.values[this.selected].startTime = this.startTime;

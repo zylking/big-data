@@ -308,6 +308,7 @@
 
   /*自定义滚动加载状态样式*/
   #mt-infinite-loading
+    width 100%
     flex-direction row
     justify-content center
     align-items center
