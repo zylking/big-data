@@ -3,9 +3,7 @@
     <!-- 顶部轮播 -->
     <div class="data-roll">
       <Header :header="header"/>
-      <div class="data-roll-inner">
-        <Swiper :shopId="shopId"/>
-      </div>
+      <Swiper :shopId="shopId"/>
     </div>
 
     <div class="data-charts-content">
@@ -224,9 +222,6 @@
       height 320px
       background url("../assets/images/bg.png") no-repeat
       background-size 100% 78%
-
-    .data-roll-inner
-      height 280px
 
     .data-charts-content
       width 100%

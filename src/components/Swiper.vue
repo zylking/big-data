@@ -1,46 +1,57 @@
 <template>
-  <ul class="data-roll-ul" @touchstart="touchStartHandle" @touchmove="touchMoveHandle" @touchend="touchEndHandle">
-    <li>
-      <img src="../assets/images/icon_sales@2x.png">
-      <p class="swiper-card-num">{{todaySales}}</p>
-      <p class="swiper-card-title">今日销售额(元)</p>
-      <router-link to="/saleDetails">
-        <mt-button size="small" type="primary">查看详情</mt-button>
-      </router-link>
-    </li>
-    <li>
-      <img src="../assets/images/icon_refund@2x.png">
-      <p class="swiper-card-num">{{todayRefunds}}</p>
-      <p class="swiper-card-title">今日退货金额(元)</p>
-      <router-link to="/wait">
-        <mt-button size="small" type="primary">查看详情</mt-button>
-      </router-link>
-    </li>
-    <li>
-      <img src="../assets/images/icon_recharge@2x.png">
-      <p class="swiper-card-num">{{todayCredit}}</p>
-      <p class="swiper-card-title">今日充值(元)</p>
-      <router-link to="/wait">
-        <mt-button size="small" type="primary">查看详情</mt-button>
-      </router-link>
-    </li>
-    <li>
-      <img src="../assets/images/icon_vip@2x.png">
-      <p class="swiper-card-num">{{todayMember}}</p>
-      <p class="swiper-card-title">今日新增会员</p>
-      <router-link to="/wait">
-        <mt-button size="small" type="primary">查看详情</mt-button>
-      </router-link>
-    </li>
-    <li>
-      <img src="../assets/images/icon_stock@2x.png">
-      <p class="swiper-card-num">{{todayStock}}</p>
-      <p class="swiper-card-title">库存总量</p>
-      <router-link to="/stockCount">
-        <mt-button size="small" type="primary">查看详情</mt-button>
-      </router-link>
-    </li>
-  </ul>
+  <div class="data-roll-inner">
+    <ul class="data-roll-ul" @touchstart="touchStartHandle" @touchmove="touchMoveHandle" @touchend="touchEndHandle">
+      <li>
+        <img src="../assets/images/icon_sales@2x.png">
+        <p class="swiper-card-num">{{todaySales}}</p>
+        <p class="swiper-card-title">今日销售额(元)</p>
+        <router-link to="/saleDetails">
+          <mt-button size="small" type="primary">查看详情</mt-button>
+        </router-link>
+      </li>
+      <li>
+        <img src="../assets/images/icon_refund@2x.png">
+        <p class="swiper-card-num">{{todayRefunds}}</p>
+        <p class="swiper-card-title">今日退货金额(元)</p>
+        <router-link to="/wait">
+          <mt-button size="small" type="primary">查看详情</mt-button>
+        </router-link>
+      </li>
+      <li>
+        <img src="../assets/images/icon_recharge@2x.png">
+        <p class="swiper-card-num">{{todayCredit}}</p>
+        <p class="swiper-card-title">今日充值(元)</p>
+        <router-link to="/wait">
+          <mt-button size="small" type="primary">查看详情</mt-button>
+        </router-link>
+      </li>
+      <li>
+        <img src="../assets/images/icon_vip@2x.png">
+        <p class="swiper-card-num">{{todayMember}}</p>
+        <p class="swiper-card-title">今日新增会员</p>
+        <router-link to="/wait">
+          <mt-button size="small" type="primary">查看详情</mt-button>
+        </router-link>
+      </li>
+      <li>
+        <img src="../assets/images/icon_stock@2x.png">
+        <p class="swiper-card-num">{{todayStock}}</p>
+        <p class="swiper-card-title">库存总量</p>
+        <router-link to="/stockCount">
+          <mt-button size="small" type="primary">查看详情</mt-button>
+        </router-link>
+      </li>
+    </ul>
+
+    <div class="roll-ul-flag">
+      <span :class="index === 0 ? 'active': ''"></span>
+      <span :class="index === 1 ? 'active': ''"></span>
+      <span :class="index === 2 ? 'active': ''"></span>
+      <span :class="index === 3 ? 'active': ''"></span>
+      <span :class="index === 4 ? 'active': ''"></span>
+    </div>
+
+  </div>
 </template>
 
 <script>
@@ -57,6 +68,7 @@
         css: ['active', 'prev', 'next', 'last-prev', 'last-next'],
         swiperAuto: true,   // 默认自动轮播是开启的
         swiperTimer: '',
+        index: 0,
 
         entityId: '',
 
@@ -165,6 +177,7 @@
         // 对比一下数组 
         for (let i = 0; i < len; ++i) {
           if (visual[i] !== this.visual[i]) {
+            if (visual[i].indexOf('active') !== -1) this.index = i;
             this.visual[i] = visual[i];
             this.item[i].className = this.visual[i] || '';
           }
@@ -209,80 +222,95 @@
 </script>
 
 <style lang="stylus">
-  .data-roll-ul
-    display flex
-    justify-content center
-    position relative
-    top 60px
-    width 100%
-    height 190px
-    transform-style preserve-3d
-    -webkit-transform-style preserve-3d
-    li
+  .data-roll-inner
+    height 280px
+    .data-roll-ul
       display flex
-      flex-direction column
       justify-content center
-      align-items center
-      position absolute
-      width 170px
+      position relative
+      top 60px
+      width 100%
       height 190px
-      left 0
-      top 0
-      right 0
-      bottom 0
-      margin auto
-      border-radius 5px
-      background-color #ffffff
-      .swiper-card-num
-        font-size 20px
-        color #000000
-      .swiper-card-title
-        font-size 12px
-        color #666666
-        margin-bottom 16px
-      .mint-button--small
-        padding 0
-        width 88px
-        height 30px
-      img
-        width 39px
-        margin-bottom 8px
+      transform-style preserve-3d
+      -webkit-transform-style preserve-3d
+      li
+        display flex
+        flex-direction column
+        justify-content center
+        align-items center
+        position absolute
+        width 170px
+        height 190px
+        left 0
+        top 0
+        right 0
+        bottom 0
+        margin auto
+        border-radius 5px
+        background-color #ffffff
+        .swiper-card-num
+          font-size 20px
+          color #000000
+        .swiper-card-title
+          font-size 12px
+          color #666666
+          margin-bottom 16px
+        .mint-button--small
+          padding 0
+          width 88px
+          height 30px
+        img
+          width 39px
+          margin-bottom 8px
 
-    li:first-child
-      z-index 4
+      li:first-child
+        z-index 4
 
-    li.active
-      opacity 1
-      z-index 3
-      visibility visible
-      transform translate3d(0, 0, 10px) scale3d(1, 1, 1)
-      -webkit-transform translate3d(0, 0, 10px) scale3d(1, 1, 1)
-    li.next
-      opacity .8
-      z-index 2
-      visibility visible
-      transform translate3d(46px, 0, 6px) scale3d(.75, .85, 1)
-      -webkit-transform translate3d(46px, 0, 6px) scale3d(.75, .85, 1)
-    li.prev
-      opacity .8
-      z-index 2
-      visibility visible
-      transform translate3d(-46px, 0, 6px) scale3d(.75, .85, 1)
-      -webkit-transform translate3d(-46px, 0, 6px) scale3d(.75, .85, 1)
-    li.last-prev
-      opacity .55
-      z-index 1
-      transform translate3d(-80px, 0, 2px) scale3d(.6, .7, 1)
-      -webkit-transform translate3d(-80px, 0, 2px) scale3d(.6, .7, 1)
-      visibility visible
-    li.last-next
-      opacity .55
-      z-index 1
-      transform translate3d(80px, 0, 2px) scale3d(.6, .7, 1)
-      -webkit-transform translate3d(80px, 0, 2px) scale3d(.6, .7, 1)
-      visibility visible
-    .transition
-      transition transform .5s ease, opacity .5s ease
-      -webkit-transition -webkit-transform .5s ease, opacity .5s ease
+      li.active
+        opacity 1
+        z-index 3
+        visibility visible
+        transform translate3d(0, 0, 10px) scale3d(1, 1, 1)
+        -webkit-transform translate3d(0, 0, 10px) scale3d(1, 1, 1)
+      li.next
+        opacity .8
+        z-index 2
+        visibility visible
+        transform translate3d(46px, 0, 6px) scale3d(.75, .85, 1)
+        -webkit-transform translate3d(46px, 0, 6px) scale3d(.75, .85, 1)
+      li.prev
+        opacity .8
+        z-index 2
+        visibility visible
+        transform translate3d(-46px, 0, 6px) scale3d(.75, .85, 1)
+        -webkit-transform translate3d(-46px, 0, 6px) scale3d(.75, .85, 1)
+      li.last-prev
+        opacity .55
+        z-index 1
+        transform translate3d(-80px, 0, 2px) scale3d(.6, .7, 1)
+        -webkit-transform translate3d(-80px, 0, 2px) scale3d(.6, .7, 1)
+        visibility visible
+      li.last-next
+        opacity .55
+        z-index 1
+        transform translate3d(80px, 0, 2px) scale3d(.6, .7, 1)
+        -webkit-transform translate3d(80px, 0, 2px) scale3d(.6, .7, 1)
+        visibility visible
+      .transition
+        transition transform .5s ease, opacity .5s ease
+        -webkit-transition -webkit-transform .5s ease, opacity .5s ease
+
+    .roll-ul-flag
+      transform translateY(66px)
+      height 10px
+      span
+        display inline-block
+        margin 0 3px
+        width 8px
+        height 8px
+        background-color #AFBCC8
+        border-radius 8px
+      span.active
+        background-color #3399FF;
 
 </style>
