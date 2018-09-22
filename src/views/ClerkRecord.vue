@@ -101,7 +101,7 @@
           this.values[this.selected] = {
             start: start + 1,
             noMore: empList.length === 10,
-            loading: true,
+            loading: false,
             noResult: start === 0 && !empList.length,
             empName: this.empName,
             data: empList

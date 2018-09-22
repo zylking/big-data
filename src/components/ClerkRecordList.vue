@@ -34,7 +34,7 @@
     methods: {
       // 往下滚动加载
       loadMore: function () {
-        if (!this.listValues.noMore) return;
+        if (!this.recordValues.noMore) return;
 
         this.loading = true;
         this.disabled = true;
