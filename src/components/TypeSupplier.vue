@@ -98,6 +98,12 @@
         overflow hidden
         text-overflow ellipsis
         white-space nowrap
+      .mt-allow-right
+        -webkit-transform translateY(-9px) rotate(45deg)
+        -moz-transform translateY(-9px) rotate(45deg)
+        -ms-transform translateY(-9px) rotate(45deg)
+        -o-transform translateY(-9px) rotate(45deg)
+        transform translateY(-9px) rotate(45deg)
     li:first-child
       width calc(50% - 1px)
       border-right 1px solid #dddddd

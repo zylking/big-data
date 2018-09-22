@@ -47,7 +47,7 @@
     list-style none
 
   #index
-    font-family 'Avenir', Helvetica, Arial, sans-serif
+    font-family "Microsoft YaHei"
     -webkit-font-smoothing antialiased
     -moz-osx-font-smoothing grayscale
     text-align center
@@ -71,6 +71,7 @@
     background-color #3399FF
     h1.mint-header-title
       font-size 18px
+      height 20px
     .mint-button-text
       display flex
       img.mt-store-selection
@@ -207,15 +208,14 @@
         margin-bottom -1px
 
     .mint-tab-container
-      overflow-y auto
       margin-top 10px
       background-color #ffffff
       .mint-tab-container-wrap
         height 100%
-      ul.list-inner-o
-        height 100%
+        .mint-tab-container-item
+          height 100%
+          overflow-y auto
       ul.list-inner
-        height 100%
         li
           padding 0 14px
           display flex
@@ -305,4 +305,19 @@
   /*加载状态样式*/
   .mint-spinner-double-bounce
     display inline-block
+
+  /*自定义滚动加载状态样式*/
+  #mt-infinite-loading
+    flex-direction row
+    justify-content center
+    align-items center
+    height 50px
+    padding 0
+    background-color #f5f5f5
+    border-bottom 0
+    p
+      font-size 12px
+      margin-left 8px
+      color #999999
+      transform translateY(-3px)
 </style>

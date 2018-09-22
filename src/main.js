@@ -1,32 +1,32 @@
-import Vue from 'vue'
-import Axios from 'axios'
+// import Vue from 'vue'
+// import Axios from 'axios'
 import qs from 'qs';
 import Main from './Main.vue'
 import router from './router'
 
 // mint-ui
-import Mint from 'mint-ui';
-import 'mint-ui/lib/style.css'
+// import Mint from 'mint-ui';
+// import 'mint-ui/lib/style.css'
 
 // 图表相关
-import VeLine from 'v-charts/lib/line.common.min'
-import VeHistogram from 'v-charts/lib/histogram.common.min'
-import VeRing from 'v-charts/lib/ring.common.min'
-import 'v-charts/lib/style.css'
+// import VeLine from 'v-charts/lib/line.common.min'
+// import VeHistogram from 'v-charts/lib/histogram.common.min'
+// import VeRing from 'v-charts/lib/ring.common.min'
+// import 'v-charts/lib/style.css'
 
-Vue.use(Mint);
+// Vue.use(MINT);
 Vue.component(VeLine.name, VeLine);
 Vue.component(VeHistogram.name, VeHistogram);
 Vue.component(VeRing.name, VeRing);
 
 Vue.config.productionTip = false;
-Vue.prototype.Toast = Mint.Toast;
-Vue.prototype.MessageBox = Mint.MessageBox;
+Vue.prototype.Toast = MINT.Toast;
+Vue.prototype.MessageBox = MINT.MessageBox;
 
-// Axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
-Vue.prototype.Axios = Axios;
+Vue.prototype.Axios = axios;
 Vue.prototype.$qs = qs;
 
+// 店铺中间桥梁
 let storeVue = new Vue();
 Vue.prototype.storeVue = storeVue;
 
@@ -56,15 +56,17 @@ Vue.prototype.getNowFormatDate = function (str, ago) {
  * 弹出message
  */
 Vue.prototype.showMessage = function (msg) {
-  Mint.MessageBox({title: '提示', message: msg, confirmButtonText: '我知道了', closeOnClickModal: false});
+  MINT.MessageBox({title: '提示', message: msg, confirmButtonText: '我知道了', closeOnClickModal: false});
 };
 
 /**
- * 显示正在加载的状态
+ * 列表加载前的处理
  */
 Vue.prototype.beforeLoading = function (value, callback) {
   value.data = [];
   value.loading = true;
+  value.start = 0;
+  value.noMore = false;
 
   // 让加载状态显示一会，避免造成闪现的状况
   setTimeout(function () {
@@ -92,7 +94,7 @@ router.beforeEach(function (to, from, next) {
         if (_Vue) {
           _Vue.showMessage('请先登录！');
         } else {
-          Mint.MessageBox({title: '提示', message: '请先登录！', confirmButtonText: '我知道了', closeOnClickModal: false});
+          MINT.MessageBox({title: '提示', message: '请先登录！', confirmButtonText: '我知道了', closeOnClickModal: false});
         }
         return;
       }

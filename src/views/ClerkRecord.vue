@@ -8,30 +8,10 @@
       <Search :pHolder="holder" :wrapperClass="wrapperClass" @updateInput="updateEmpName" @updateCustom="updateCustom"/>
 
       <mt-tab-container v-model="selected">
-        <mt-tab-container-item id="0">
-          <PageLoading v-if="values[0].loading"/>
-          <NoResult v-if="!values[0].loading && values[0].noResult"/>
-          <ClerkRecordList v-if="!values[0].loading && !values[0].noResult" :recordValues="values[1]['data']"/>
-        </mt-tab-container-item>
-        <mt-tab-container-item id="1">
-          <PageLoading v-if="values[1].loading"/>
-          <NoResult v-if="!values[1].loading && values[0].noResult"/>
-          <ClerkRecordList v-if="!values[1].loading && !values[1].noResult" :recordValues="values[1]['data']"/>
-        </mt-tab-container-item>
-        <mt-tab-container-item id="2">
-          <PageLoading v-if="values[2].loading"/>
-          <NoResult v-if="!values[2].loading && values[0].noResult"/>
-          <ClerkRecordList v-if="!values[2].loading && !values[2].noResult" :recordValues="values[1]['data']"/>
-        </mt-tab-container-item>
-        <mt-tab-container-item id="3">
-          <PageLoading v-if="values[3].loading"/>
-          <NoResult v-if="!values[3].loading && values[0].noResult"/>
-          <ClerkRecordList v-if="!values[3].loading && !values[3].noResult" :recordValues="values[1]['data']"/>
-        </mt-tab-container-item>
-        <mt-tab-container-item id="4">
-          <PageLoading v-if="values[4].loading"/>
-          <NoResult v-if="!values[4].loading && values[0].noResult"/>
-          <ClerkRecordList v-if="!values[4].loading && !values[4].noResult" :recordValues="values[1]['data']"/>
+        <mt-tab-container-item v-for="(item, key) in values" :id="key">
+          <PageLoading v-if="item.loading"/>
+          <NoResult v-if="!item.loading && item.noResult"/>
+          <ClerkRecordList v-if="!item.loading && !item.noResult" :recordValues="item" @loadMoreList="loadMoreList"/>
         </mt-tab-container-item>
       </mt-tab-container>
     </div>
@@ -66,7 +46,13 @@
         empName: '',
 
         // 今天、昨天、近7天、近30天、自定义时间区间的数据
-        values: {'0': {loading: true, noResult: false}, '1': {}, '2': {}, '3': {}, '4': {}},
+        values: {
+          '0': {start: 0, noMore: false, loading: true, noResult: false},
+          '1': {start: 0, noMore: false},
+          '2': {start: 0, noMore: false},
+          '3': {start: 0, noMore: false},
+          '4': {start: 0, noMore: false}
+        },
       }
     },
 
@@ -92,32 +78,40 @@
       },
 
       // 加载店员业绩列表
-      loadClerkRecordList: function () {
-        let data = {
-          start: 0,
-          rows: 10,
-          entityId: this.entityId,
-          fShopNo: this.shopId,
-          empName: this.empName,
-          startTime: this.startTime,
-          endTime: this.endTime
-        };
+      loadClerkRecordList: function (callback) {
+        let
+            start = this.values[this.selected].start,
+            data = {
+              start: start,
+              rows: 10,
+              entityId: this.entityId,
+              fShopNo: this.shopId,
+              empName: this.empName,
+              startTime: this.startTime,
+              endTime: this.endTime
+            };
 
         this.Axios({
           method: 'post',
           url: '/stewards/Salesanaly/selectByEmpMoneyAppData.do',
           data: this.$qs.stringify(data)
         }).then((res) => {
+          let result = res.data, empList = result.empList;
+
           this.values[this.selected] = {
-            loading: false,
-            noResult: !res.data.empList.length,
+            start: start + 1,
+            noMore: empList.length === 10,
+            loading: true,
+            noResult: start === 0 && !empList.length,
             empName: this.empName,
-            data: res.data.empList
+            data: empList
           };
           if (this.selected === '4') {
-            this.values[this.selected].start = this.startTime;
-            this.values[this.selected].end = this.endTime;
+            this.values[this.selected].startTime = this.startTime;
+            this.values[this.selected].endTime = this.endTime;
           }
+
+          callback && callback();
         }).catch(function (err) {
           console.log(err);
         });
@@ -142,7 +136,7 @@
       // 更新自定义：时间区间和列表请求
       updateCustom: function (start, end) {
         let custom = this.values[this.selected];
-        if (custom.start !== start || custom.end !== end) {
+        if (custom.startTime !== start || custom.endTime !== end) {
           this.startTime = start;
           this.endTime = end;
           this.beforeLoading(this.values[this.selected], () => {
@@ -154,22 +148,26 @@
       // 更改tab页选择状态
       updateSelected: function (id) {
         this.selected = id;
+      },
+
+      // 加载更多列
+      loadMoreList: function (callback) {
+        this.loadClerkRecordList(callback);
       }
     },
 
     watch: {
       selected: function (id) {
+        let value = this.values[id];
         this.wrapperClass = {'mt-search': +id !== 4, 'mt-date': +id === 4};
 
-        let values = this.values[id];
-
-        if (!values.data || values.empName !== this.emphasis) {
+        if (!value.data || value.empName !== this.emphasis) {
           if (+id === 4) {
-            if (!values.start && !values.end) {
+            if (!value.startTime && !value.endTime) {
               this.initTimeZones();
             } else {
-              this.startTime = values.start;
-              this.endTime = values.end;
+              this.startTime = value.startTime;
+              this.endTime = value.endTime;
             }
           }
 
@@ -189,8 +187,7 @@
 </script>
 
 <style lang="stylus">
-  .clerk-list
-    height calc(100% - 40px)
+  .list
     .mint-tab-container
-      min-height calc(100% - 106px)
+      height calc(100% - 106px)
 </style>

@@ -21,9 +21,9 @@
 
       <mt-tab-container v-model="selected">
         <mt-tab-container-item id="0">
-          <PageLoading v-if="listValues.loading"/>
-          <NoResult v-if="!listValues.loading && listValues.noResult"/>
-          <StockCountList v-if="!listValues.loading && !listValues.noResult" :listValues="listValues.data"/>
+          <PageLoading v-if="values.loading"/>
+          <NoResult v-if="!values.loading && values.noResult"/>
+          <StockCountList v-if="!values.loading && !values.noResult" :listValues="values" @loadMoreList="loadMoreList"/>
         </mt-tab-container-item>
       </mt-tab-container>
     </div>
@@ -59,7 +59,7 @@
 
         stockNum: 0,
         stockMoney: '0.00',
-        listValues: {loading: true, noResult: false, data: []},
+        values: {start: 0, noMore: false, loading: true, noResult: false, data: []},
 
         // 用户输入的货品名称或者货品编码
         goodName: '',
@@ -126,7 +126,7 @@
           this.types.slots[0].value = dType.typename;
 
           // 加载库存统计列表
-          this.beforeLoading(this.listValues, () => {
+          this.beforeLoading(this.values, () => {
             this.loadStockCensusList();
           });
         }).catch((err) => {
@@ -135,29 +135,38 @@
       },
 
       // 加载库存统计列表
-      loadStockCensusList: function () {
-        let data = {
-          start: 0,
-          rows: 10,
-          entityId: this.entityId,
-          fShopNo: this.shopId,
-          goodName: this.goodName,
-          typeId: this.types.id,
-          warehouseNo: this.stock.id
-        };
+      loadStockCensusList: function (callback) {
+        let
+            start = this.values.start,
+            data = {
+              start: start,
+              rows: 10,
+              entityId: this.entityId,
+              fShopNo: this.shopId,
+              goodName: this.goodName,
+              typeId: this.types.id,
+              warehouseNo: this.stock.id
+            };
 
         this.Axios({
           method: 'post',
           url: '/stewards/cdemand/getAppStockAppData.do',
           data: this.$qs.stringify(data)
         }).then((res) => {
-          this.stockNum = res.data.stocknums;
-          this.stockMoney = res.data.stockmoney;
-          this.listValues = {
+          let result = res.data, goodsList = result.goodsList;
+
+          this.stockNum = result.stocknums;
+          this.stockMoney = result.stockmoney;
+          this.values = {
+            start: start + 1,
+            noMore: goodsList.length === 10,
             loading: false,
-            noResult: !res.data.goodsList.length,
-            data: res.data.goodsList
+            noResult: start === 0 && !goodsList.length,
+            data: goodsList
           };
+
+          // 滚动加载回调
+          callback && callback();
         }).catch((err) => {
           console.log(err);
         });
@@ -178,7 +187,7 @@
             break;
         }
 
-        this.beforeLoading(this.listValues, () => {
+        this.beforeLoading(this.values, () => {
           this.loadStockCensusList();
         });
       },
@@ -189,9 +198,14 @@
 
         this.goodName = val;
         // 加载请求列表
-        this.beforeLoading(this.listValues, () => {
+        this.beforeLoading(this.values, () => {
           this.loadStockCensusList();
         });
+      },
+
+      // 加载更多列
+      loadMoreList: function (callback) {
+        this.loadStockCensusList(callback);
       }
     },
 
@@ -240,4 +254,8 @@
     li:last-child
       border 0
       width 50%
+
+  .list
+    .mint-tab-container
+      height calc(100% - 168px)
 </style>

@@ -30,30 +30,10 @@
       </ul>
 
       <mt-tab-container v-model="selected">
-        <mt-tab-container-item id="0">
-          <PageLoading v-if="values['0'].loading"/>
-          <NoResult v-if="!values['0'].loading && values['0'].noResult"/>
-          <SaleDetailsList v-if="!values['0'].loading && !values['0'].noResult" :listValues="values['0'].data"/>
-        </mt-tab-container-item>
-        <mt-tab-container-item id="1">
-          <PageLoading v-if="values['1'].loading"/>
-          <NoResult v-if="!values['1'].loading && values['1'].noResult"/>
-          <SaleDetailsList v-if="!values['1'].loading && !values['1'].noResult" :listValues="values['1'].data"/>
-        </mt-tab-container-item>
-        <mt-tab-container-item id="2">
-          <PageLoading v-if="values['2'].loading"/>
-          <NoResult v-if="!values['2'].loading && values['2'].noResult"/>
-          <SaleDetailsList v-if="!values['2'].loading && !values['2'].noResult" :listValues="values['2'].data"/>
-        </mt-tab-container-item>
-        <mt-tab-container-item id="3">
-          <PageLoading v-if="values['3'].loading"/>
-          <NoResult v-if="!values['3'].loading && values['3'].noResult"/>
-          <SaleDetailsList v-if="!values['3'].loading && !values['3'].noResult" :listValues="values['3'].data"/>
-        </mt-tab-container-item>
-        <mt-tab-container-item id="4">
-          <PageLoading v-if="values['4'].loading"/>
-          <NoResult v-if="!values['4'].loading && values['4'].noResult"/>
-          <SaleDetailsList v-if="!values['4'].loading && !values['4'].noResult" :listValues="values['4'].data"/>
+        <mt-tab-container-item v-for="(item, key) in values" :id="key">
+          <PageLoading v-if="item.loading"/>
+          <NoResult v-if="!item.loading && item.noResult"/>
+          <SaleDetailsList v-if="!item.loading && !item.noResult" :listValues="item" @loadMoreList="loadMoreList"/>
         </mt-tab-container-item>
       </mt-tab-container>
     </div>
@@ -95,8 +75,20 @@
         // 企业id
         entityId: '',
 
-        // 今天、昨天、近7天、近30天的数据
-        values: {'0': {loading: true, noResult: false}, '1': {}, '2': {}, '3': {}, '4': {}},
+        /**
+         * 今天、昨天、近7天、近30天的数据
+         * start 各标签页当前的数据其实页 0：第一页
+         * noMore false表示已没有更多数据
+         * loading true表示显示加载状态
+         * noResult false表示没有请求到数据结果
+         */
+        values: {
+          '0': {start: 0, noMore: false, loading: true, noResult: false},
+          '1': {start: 0, noMore: false},
+          '2': {start: 0, noMore: false},
+          '3': {start: 0, noMore: false},
+          '4': {start: 0, noMore: false}
+        },
         // 用户输入的货品名称或者货品编码
         goodName: '',
         // 类别
@@ -182,43 +174,54 @@
       },
 
       // 加载销售详情列表
-      loadSalesDetailsList: function () {
-        let data = {
-          start: 0,
-          rows: 10,
-          entityId: this.entityId,
-          fShopNo: this.shopId,
-          goodName: this.goodName,
-          typeId: this.types.id,
-          supplierid: this.supplier.id,
-          startTime: this.startTime,
-          endTime: this.endTime
-        };
+      loadSalesDetailsList: function (callback) {
+        let
+            current = this.values[this.selected],
+            data = {
+              start: current.start,
+              rows: 10,
+              entityId: this.entityId,
+              fShopNo: this.shopId,
+              goodName: this.goodName,
+              typeId: this.types.id,
+              supplierid: this.supplier.id,
+              startTime: this.startTime,
+              endTime: this.endTime
+            };
 
         this.Axios({
           method: 'post',
           url: '/stewards/MDsellShow/getAppSellDetailAppData.do',
           data: this.$qs.stringify(data)
         }).then((res) => {
-          this.salesCount = res.data.selloutnum;
-          this.salesMoney = res.data.selloutmoney;
-          this.cost = res.data.cost;
-          this.totalProfit = res.data.totalprofit;
+          let result = res.data, goodsList = result.goodsList;
+
+          // 基本信息
+          this.salesCount = result.selloutnum;
+          this.salesMoney = result.selloutmoney;
+          this.cost = result.cost;
+          this.totalProfit = result.totalprofit;
 
           // 存储相应信息，下次切换到该tab页时，如果所选参数一致，则无需再次请求
           let sale = {
+            start: current.start + 1,
+            noMore: goodsList === 10,
             loading: false,
-            noResult: !res.data.goodsList.length,
+            noResult: current.start === 0 && !goodsList.length,   // 第一页，且返回的结果为0则表示该tab页是空的
             type: this.types.id,
             supplier: this.supplier.id,
             input: this.goodName,
-            data: res.data.goodsList
+            data: current.data ? goodsList : current.data.concat(goodsList)
           };
+
           if (+this.selected === 4) {
-            sale.start = this.startTime;
-            sale.end = this.endTime;
+            sale.startTime = this.startTime;
+            sale.endTime = this.endTime;
           }
           this.values[this.selected] = sale;
+
+          // 触发滚动加载的回调
+          callback && callback();
         }).catch((err) => {
           console.log(err);
         });
@@ -257,7 +260,7 @@
         this.endTime = end;
 
         let custom = this.values[this.selected];
-        if (custom.start !== this.startTime || custom.end !== this.endTime || !custom.data) {
+        if (custom.startTime !== this.startTime || custom.endTime !== this.endTime || !custom.data) {
           this.beforeLoading(this.values[this.selected], () => {
             this.loadSalesDetailsList();
           });
@@ -278,6 +281,11 @@
         this.beforeLoading(this.values[this.selected], () => {
           this.loadSalesDetailsList();
         });
+      },
+
+      // 加载更多列
+      loadMoreList: function (callback) {
+        this.loadSalesDetailsList(callback);
       }
     },
 
@@ -290,8 +298,12 @@
         if (!tabData.data || tabData.type !== this.types.id || tabData.supplier !== this.supplier.id || tabData.input !== this.goodName) {
           // 如果是切换自定义时间，则当前时间区间为自定义显示的区间
           if (+id === 4) {
-            this.startTime = tabData.start;
-            this.endTime = tabData.end;
+            if (!tabData.startTime && tabData.endTime) {
+              this.initTimeZones();
+            } else {
+              this.startTime = tabData.startTime;
+              this.endTime = tabData.endTime;
+            }
           }
 
           this.beforeLoading(this.values[this.selected], () => {
