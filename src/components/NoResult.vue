@@ -10,7 +10,7 @@
     name: "NoResult",
     props: {
       message: {
-        default: '搜索不要您要的结果哦~'
+        default: '搜索不到您要的结果哦~'
       }
     }
   }

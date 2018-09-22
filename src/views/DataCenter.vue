@@ -20,8 +20,8 @@
         </div>
         <div class="charts-div-inner">
           <ve-line :loading="lLoading" :data="VeLineData" :width="chartsWidth" :height="chartsHeight"
-                   :legend-visible="false"
-                   :colors="lineColors" :set-option-opts="lineOpt" :data-empty="lEmpty"></ve-line>
+                   :legend-visible="false" :extend="lineOpt"
+                   :colors="lineColors" :data-empty="lEmpty"></ve-line>
         </div>
       </div>
       <!-- 会员增长趋势 -->
@@ -35,7 +35,7 @@
         </div>
         <div class="charts-div-inner">
           <ve-histogram :loading="hLoading" :data="VeHistogramData" :width="chartsWidth" :height="chartsHeight"
-                        :legend-visible="false"
+                        :legend-visible="false" :extend="barOpt"
                         :colors="histColors" :data-empty="hEmpty"></ve-histogram>
         </div>
       </div>
@@ -109,41 +109,37 @@
     name: "DataCenter",
     components: {Header, Swiper},
     data: function () {
-      this.lineColors = ["#3399FF"];
-      this.lineOpt = {
-        series: [{smooth: 0}]
-      };
-
-      this.histColors = ["#FFAA22"];
-      this.ringColors = ["#FF6581", "#29CCB6", "#FFAA22"];
-      this.chartsHeight = "320px";
-      this.chartsWidth = '100%';
       return {
-        header: {
-          back: false,
-          to: '/',
-          title: '数据中心'
+        header: {back: false, to: '/', title: '数据中心'},
+        // 店铺id
+        shopId: '',
+        // 企业id
+        entityId: '',
+
+        lineOpt: {series: {type: 'line', smooth: false, label: {normal: {show: true}}}},
+        barOpt: {
+          series: {type: 'bar', barWidth: '20px', barMinHeight: 1, label: {normal: {show: true, position: 'top'}}}
         },
+
+        chartsHeight: "320px",
+        chartsWidth: '100%',
+        lineColors: ["#3399FF"],
+        histColors: ["#FFAA22"],
+        ringColors: ["#FF6581", "#29CCB6", "#FFAA22"],
+
         lEmpty: false,
         lLoading: false,
         hEmpty: false,
         hLoading: false,
         rEmpty: false,
         rLoading: false,
-        index: 0,
-        items: [],
 
         // 折线图
         VeLineData: {columns: [], rows: []},
         // 柱状图
         VeHistogramData: {columns: [], rows: []},
         // 环形图
-        VeRingData: {columns: [], rows: []},
-
-        // 店铺id
-        shopId: '',
-        // 企业id
-        entityId: ''
+        VeRingData: {columns: [], rows: []}
       }
     },
 
@@ -169,6 +165,9 @@
       this.storeVue.$on('updateShopId', (id) => {
         this.shopId = id;
       });
+
+      console.log(VeRing);
+      // VeRing.dispatchAction({type: 'highlight',seriesIndex: 0,dataIndex: 0});
 
       // 获取图表数据
       this.getChartsData();
