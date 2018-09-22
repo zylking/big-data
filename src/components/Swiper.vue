@@ -112,7 +112,7 @@
           this.todayStock = !code ? data.todayStock : 0;
 
           // 加载完成后开启轮播
-          this.init();
+          if (!this.swiperTimer) this.init();
         }).catch((err) => {
           console.log(err);
         });
