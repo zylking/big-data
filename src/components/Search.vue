@@ -67,10 +67,13 @@
       },
 
       confirmDate: function (str) {
-        let mesc = new Date(str).getTime();
+        let
+            format = this.getNowFormatDate(str),
+            mesc = new Date(format + " 00:00:00").getTime();
+
         switch (this.pickerType) {
           case 'start':
-            let endMesc = new Date(this.endDate).getTime();
+            let endMesc = new Date(this.endDate + " 23:59:59").getTime();
             // 如果开始日期大于结束时间，则提示日期选择错误
             if (mesc > endMesc) {
               this.Toast({message: '日期选择错误', className: 'mint-toast-error'});
@@ -80,7 +83,7 @@
             }
             break;
           case 'end':
-            let startMesc = new Date(this.startDate).getTime();
+            let startMesc = new Date(this.startDate + " 00:00:00").getTime();
             // 如果结束日期小于开始时间，则提示日期选择错误
             if (mesc < startMesc) {
               this.Toast({message: '日期选择错误', className: 'mint-toast-error'});
