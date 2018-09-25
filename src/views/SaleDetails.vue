@@ -211,6 +211,7 @@
             type: this.types.id,
             supplier: this.supplier.id,
             input: this.goodName,
+            result: result,
             data: current.data ? current.data.concat(goodsList) : goodsList
           };
 
@@ -298,7 +299,7 @@
         if (!tabData.data || tabData.type !== this.types.id || tabData.supplier !== this.supplier.id || tabData.input !== this.goodName) {
           // 如果是切换自定义时间，则当前时间区间为自定义显示的区间
           if (+id === 4) {
-            if (!tabData.startTime && tabData.endTime) {
+            if (!tabData.startTime && !tabData.endTime) {
               this.initTimeZones();
             } else {
               this.startTime = tabData.startTime;
@@ -309,6 +310,12 @@
           this.beforeLoading(this.values[this.selected], () => {
             this.loadSalesDetailsList();
           });
+        } else {
+          // 基本信息
+          this.salesCount = tabData.result.selloutnum;
+          this.salesMoney = tabData.result.selloutmoney;
+          this.cost = tabData.result.cost;
+          this.totalProfit = tabData.result.totalprofit;
         }
       },
 
