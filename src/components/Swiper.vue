@@ -13,25 +13,25 @@
         <img src="../assets/images/icon_refund@2x.png">
         <p class="swiper-card-num">{{todayRefunds}}</p>
         <p class="swiper-card-title">今日退货金额(元)</p>
-        <router-link to="/wait">
-          <mt-button size="small" type="primary">查看详情</mt-button>
-        </router-link>
+        <!--<router-link to="/wait">-->
+          <!--<mt-button size="small" type="primary">查看详情</mt-button>-->
+        <!--</router-link>-->
       </li>
       <li>
         <img src="../assets/images/icon_recharge@2x.png">
         <p class="swiper-card-num">{{todayCredit}}</p>
         <p class="swiper-card-title">今日充值(元)</p>
-        <router-link to="/wait">
-          <mt-button size="small" type="primary">查看详情</mt-button>
-        </router-link>
+        <!--<router-link to="/wait">-->
+          <!--<mt-button size="small" type="primary">查看详情</mt-button>-->
+        <!--</router-link>-->
       </li>
       <li>
         <img src="../assets/images/icon_vip@2x.png">
         <p class="swiper-card-num">{{todayMember}}</p>
         <p class="swiper-card-title">今日新增会员</p>
-        <router-link to="/wait">
-          <mt-button size="small" type="primary">查看详情</mt-button>
-        </router-link>
+        <!--<router-link to="/wait">-->
+          <!--<mt-button size="small" type="primary">查看详情</mt-button>-->
+        <!--</router-link>-->
       </li>
       <li>
         <img src="../assets/images/icon_stock@2x.png">
@@ -259,6 +259,7 @@
           padding 0
           width 88px
           height 30px
+          line-height 30px
         img
           width 39px
           margin-bottom 8px
