@@ -111,8 +111,6 @@
           this.todayMember = !code ? data.todayAddMenber : 0;
           this.todayStock = !code ? data.todayStock : 0;
 
-          this.Toast({message: this.todaySales});
-
           // 加载完成后开启轮播
           if (!this.swiperTimer) this.init();
         }).catch((err) => {
